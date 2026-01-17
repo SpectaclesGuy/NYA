@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NYA Prefect Setup</title>
+<link rel="icon" type="image/png" href="/assets/logo.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+    <script src="/pages/nya.js?v=2" defer=""></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1F2A36",
+              "parchment": "#F7F3EC",
+              "warm-gray": "#E3DED6",
+              "background-light": "#F7F6F3",
+              "accent-gold": "#C7A35A",
+            },
+            fontFamily: {
+              "sans": ["Montserrat", "sans-serif"],
+              "serif": ["Montserrat", "serif"],
+            },
+          },
+        },
+      }
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-background-light text-[#1a1a1a] antialiased;
+        }
+        h1, h2 {
+          @apply font-serif;
+        }
+      }
+    </style>
+  <link href="/pages/nya.css" rel="stylesheet"/>
+</head>
+  <body class="min-h-screen">
+    <div class="flex min-h-screen flex-col">
+      <header class="sticky top-0 z-50 bg-white border-b border-warm-gray">
+<div class="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between">
+<div class="flex items-center gap-16">
+<div class="flex items-center gap-3">
+<div class="flex items-center">
+<img alt=\"NYA logo\" class="h-10 w-auto object-contain" src="/assets/nya_logo.png"/>
+</div>
+<h1 class="text-sm font-semibold tracking-[0.2em] uppercase hidden md:block">NYA Community</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/dashboard">Discover</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/profile/setup">Update Profile</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentors">Prefects</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/requests">My Team</a>
+<a id="mentor-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentor/dashboard">Prefect Dashboard</a>
+<a id="admin-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/admin/users">Admin</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button id="logout-button" class="hidden sm:inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+Logout
+</button>
+<div class="h-6 w-[1px] bg-warm-gray"></div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<p class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Collaborator</p>
+<span id="nav-user-name" class="text-xs font-medium">Member</span>
+</div>
+<a id="nav-profile-link" class="w-10 h-10 rounded-full bg-cover bg-center border border-warm-gray" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXMAuFlpfGLb8YpJibsxtzbW83UZ6AareCHOsAxn3Nf94v-Nz39G_zgXq-K9q-IOgNC-XRxVBc2u0mc8wDa1O4aBFq0gysh8JdizlaWNWeUjtlUdSp1wbxB92BVSunOEYWOvQvPcdB_Ze_0LrVIh9NxR1-vyYotaH4MMbA8_8ZlfZOPRIjW3GsnLyJUVg7HQ_UhlQ7-eieV8mDRAmWLuQVbDb0UjADjJRw2fqW-2FIDDOX2NZEBF7aGVzk3CmAr5GeiGGCicRaQMk");' href="/profile" aria-label="View profile"></a>
+</div>
+</div>
+</div>
+</header>
+      <main class="flex-1">
+        <div class="max-w-[1000px] mx-auto px-8 py-12">
+          <div class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <section class="bg-white border border-warm-gray p-8">
+              <h2 class="text-4xl text-primary italic">Create your mentor profile</h2>
+              <p class="text-sm text-gray-500 mt-3">Share your expertise and availability. An admin will review before you appear in the directory.</p>
+              <form id="mentor-form" class="mt-8 space-y-5">
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Domain</label>
+                  <input id="mentor-domain" class="mt-3 w-full border border-warm-gray bg-white px-4 py-3 text-sm" placeholder="e.g. AI, Fintech, Design" type="text"/>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Years of experience</label>
+                  <input id="mentor-experience" class="mt-3 w-full border border-warm-gray bg-white px-4 py-3 text-sm" placeholder="e.g. 8" type="number" min="0" max="60"/>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Expertise</label>
+                  <input id="mentor-expertise" class="mt-3 w-full border border-warm-gray bg-white px-4 py-3 text-sm" placeholder="e.g. NLP, Ethics, Systems" type="text"/>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Links</label>
+                  <input id="mentor-links" class="mt-3 w-full border border-warm-gray bg-white px-4 py-3 text-sm" placeholder="e.g. LinkedIn, Portfolio" type="text"/>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Bio</label>
+                  <textarea id="mentor-bio" class="mt-3 w-full border border-warm-gray bg-white px-4 py-3 text-sm min-h-[110px]" placeholder="Describe how you support juniors."></textarea>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Availability</label>
+                  <input id="mentor-availability" class="mt-3 w-full border border-warm-gray bg-white px-4 py-3 text-sm" placeholder="e.g. Wed evenings" type="text"/>
+                </div>
+                <div class="flex flex-wrap gap-4">
+                  <button class="bg-primary text-white text-[11px] font-semibold uppercase tracking-[0.3em] px-8 py-3" type="submit">Submit for review</button>
+                </div>
+                <p id="mentor-status" class="text-xs text-gray-400"></p>
+              </form>
+            </section>
+            <aside class="bg-parchment border border-warm-gray p-8 self-start">
+              <h3 class="text-2xl text-primary italic">Admin review</h3>
+              <p class="text-sm text-gray-600 mt-3">Prefect profiles appear in the directory only after approval.</p>
+              <div class="mt-6 border-t border-warm-gray pt-5">
+                <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Tip</p>
+                <p class="text-sm text-gray-600 mt-2">Share a short bio and 2-3 links so students can trust your expertise.</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

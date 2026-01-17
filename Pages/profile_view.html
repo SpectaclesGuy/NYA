@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Executive Student Profile | NYA</title>
+<link rel="icon" type="image/png" href="/assets/logo.png"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="/pages/nya.js?v=2" defer=""></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "oxford-blue": "#1F2A36",
+                        "primary": "#1F2A36",
+                        "silver-metallic": "#A8A9AD",
+                        "accent-gold": "#C7A35A",
+                        "warm-gray": "#E3DED6",
+                    },
+                    fontFamily: {
+                        "sans": ["Montserrat", "sans-serif"],
+                        "serif": ["Montserrat", "serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --oxford-blue: #002147;
+            --silver-metallic: #A8A9AD;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(1200px 600px at 80% -10%, #f7f3ec 0%, transparent 70%), #ffffff;
+            color: #1a1a1a;
+        }
+        .skill-chip {
+            border-width: 0.5px;
+            letter-spacing: 0.05em;
+        }
+        .profile-shell {
+            display: grid;
+            grid-template-columns: 1.1fr 1.9fr;
+            gap: 3.5rem;
+        }
+        .profile-card {
+            background: #ffffff;
+            border: 1px solid #e3ded6;
+            padding: 2.5rem;
+        }
+        .profile-aside {
+            border-left: 1px solid #e3ded6;
+            padding-left: 2.5rem;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        .verified-badge {
+            background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 50%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border: 1px solid #e3ded6;
+            background: #f7f3ec;
+            display: grid;
+            place-items: center;
+        }
+        .profile-avatar img {
+            width: 80px;
+            height: 80px;
+        }
+        @media (max-width: 1024px) {
+            .profile-shell {
+                grid-template-columns: 1fr;
+            }
+            .profile-aside {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid #e3ded6;
+                padding-top: 2rem;
+            }
+        }
+    </style>
+<link href="/pages/nya.css" rel="stylesheet"/>
+</head>
+<body class="antialiased">
+<div class="relative min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 bg-white border-b border-warm-gray">
+<div class="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between">
+<div class="flex items-center gap-16">
+<div class="flex items-center gap-3">
+<div class="flex items-center">
+<img alt=\"NYA logo\" class="h-10 w-auto object-contain" src="/assets/nya_logo.png"/>
+</div>
+<h1 class="text-sm font-semibold tracking-[0.2em] uppercase hidden md:block">NYA Community</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/dashboard">Discover</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/profile/setup">Update Profile</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentors">Prefects</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/requests">My Team</a>
+<a id="mentor-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentor/dashboard">Prefect Dashboard</a>
+<a id="admin-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/admin/users">Admin</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button id="logout-button" class="hidden sm:inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+Logout
+</button>
+<div class="h-6 w-[1px] bg-warm-gray"></div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<p class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Collaborator</p>
+<span id="nav-user-name" class="text-xs font-medium">Member</span>
+</div>
+<a id="nav-profile-link" class="w-10 h-10 rounded-full bg-cover bg-center border border-warm-gray" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXMAuFlpfGLb8YpJibsxtzbW83UZ6AareCHOsAxn3Nf94v-Nz39G_zgXq-K9q-IOgNC-XRxVBc2u0mc8wDa1O4aBFq0gysh8JdizlaWNWeUjtlUdSp1wbxB92BVSunOEYWOvQvPcdB_Ze_0LrVIh9NxR1-vyYotaH4MMbA8_8ZlfZOPRIjW3GsnLyJUVg7HQ_UhlQ7-eieV8mDRAmWLuQVbDb0UjADjJRw2fqW-2FIDDOX2NZEBF7aGVzk3CmAr5GeiGGCicRaQMk");' href="/profile" aria-label="View profile"></a>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-[1440px] mx-auto px-12 pt-16 pb-24">
+<div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-16">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Profile</p>
+<div class="flex items-center gap-4 mt-4">
+<h1 id="profile-name" class="font-serif text-6xl text-primary leading-tight"></h1>
+<span class="material-symbols-outlined verified-badge text-2xl mt-2">verified</span>
+</div>
+<p id="profile-role" class="text-lg font-light text-gray-500 tracking-wide mt-3"></p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 border border-primary px-5 py-2">
+<div class="size-1.5 rounded-full bg-primary animate-pulse"></div>
+<span id="profile-looking" class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary"></span>
+</div>
+<button id="request-access" class="px-6 py-3 bg-primary text-white text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-gray-800 transition-colors">
+                        Request Access
+                    </button>
+</div>
+</div>
+<div class="profile-shell">
+<div class="profile-card space-y-10">
+<div class="flex items-center gap-6">
+<div class="profile-avatar">
+<img alt="Default avatar" src="/assets/default_avatar.svg"/>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Coordinates</p>
+<p id="profile-email" class="flex items-center gap-2 text-sm font-medium mt-3"><span class="material-symbols-outlined text-gray-400 text-lg">mail</span> Email hidden until accepted</p>
+</div>
+</div>
+<div>
+<h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-4">Availability</h3>
+<p id="profile-availability" class="text-sm font-semibold"></p>
+</div>
+<div>
+<h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-4">Core Competencies</h3>
+<div id="profile-skills" class="flex flex-wrap gap-2"></div>
+</div>
+</div>
+<div class="profile-aside flex flex-col gap-12">
+<section>
+<h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-6">Executive Summary</h3>
+<p id="profile-bio" class="font-light text-2xl leading-relaxed text-gray-800 italic font-serif"></p>
+</section>
+<section>
+<div class="border-t border-gray-100 pt-6">
+<p class="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">Est. 2024</p>
+</div>
+</section>
+</div>
+</div>
+</main>
+<footer class="px-12 py-12 border-t border-gray-100">
+<div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-[0.4em] text-gray-400">
+<div class="flex gap-12">
+</div>
+<div class="flex gap-8">
+</div>
+</div>
+</footer>
+</div>
+
+</body></html>

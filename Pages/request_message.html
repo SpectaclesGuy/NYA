@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NYA Request Access</title>
+<link rel="icon" type="image/png" href="/assets/logo.png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/pages/nya.js?v=2" defer></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#1F2A36",
+              "warm-gray": "#F1EEE8",
+              "navy-academic": "#1F2A36",
+              "charcoal": "#333333",
+              "border-sep": "#E0DBD2",
+              "accent-gold": "#C7A35A",
+            },
+            fontFamily: {
+              "sans": ["Montserrat", "sans-serif"],
+              "serif": ["Montserrat", "serif"]
+            },
+          },
+        },
+      }
+    </script>
+    <style type="text/tailwindcss">
+      body {
+        @apply bg-[#FCFAF7] text-primary;
+        -webkit-font-smoothing: antialiased;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+      }
+    </style>
+    <link href="/pages/nya.css" rel="stylesheet"/>
+  </head>
+  <body class="min-h-screen">
+    <header class="sticky top-0 z-50 bg-white border-b border-warm-gray">
+<div class="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between">
+<div class="flex items-center gap-16">
+<div class="flex items-center gap-3">
+<div class="flex items-center">
+<img alt=\"NYA logo\" class="h-10 w-auto object-contain" src="/assets/nya_logo.png"/>
+</div>
+<h1 class="text-sm font-semibold tracking-[0.2em] uppercase hidden md:block">NYA Community</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/dashboard">Discover</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/profile/setup">Update Profile</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentors">Prefects</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/requests">My Team</a>
+<a id="mentor-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentor/dashboard">Prefect Dashboard</a>
+<a id="admin-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/admin/users">Admin</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button id="logout-button" class="hidden sm:inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+Logout
+</button>
+<div class="h-6 w-[1px] bg-warm-gray"></div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<p class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Collaborator</p>
+<span id="nav-user-name" class="text-xs font-medium">Member</span>
+</div>
+<a id="nav-profile-link" class="w-10 h-10 rounded-full bg-cover bg-center border border-warm-gray" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXMAuFlpfGLb8YpJibsxtzbW83UZ6AareCHOsAxn3Nf94v-Nz39G_zgXq-K9q-IOgNC-XRxVBc2u0mc8wDa1O4aBFq0gysh8JdizlaWNWeUjtlUdSp1wbxB92BVSunOEYWOvQvPcdB_Ze_0LrVIh9NxR1-vyYotaH4MMbA8_8ZlfZOPRIjW3GsnLyJUVg7HQ_UhlQ7-eieV8mDRAmWLuQVbDb0UjADjJRw2fqW-2FIDDOX2NZEBF7aGVzk3CmAr5GeiGGCicRaQMk");' href="/profile" aria-label="View profile"></a>
+</div>
+</div>
+</div>
+</header>
+    <main class="max-w-[900px] mx-auto py-16 px-6">
+      <div class="mb-12">
+        <h2 class="text-5xl font-serif text-navy-academic mb-4 italic">Request access</h2>
+        <p class="text-charcoal/60 text-lg font-light max-w-xl leading-relaxed">
+          Send a concise note to introduce your capstone idea and how you would like to collaborate.
+        </p>
+      </div>
+      <div class="bg-white border border-border-sep p-8">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/40">Recipient</p>
+            <h3 id="request-message-name" class="text-3xl font-serif italic text-navy-academic mt-2">Loading...</h3>
+            <p id="request-message-role" class="text-sm text-charcoal/60 mt-2"></p>
+          </div>
+          <a id="request-message-back" class="text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/60 hover:text-navy-academic" href="/dashboard">Back to discover</a>
+        </div>
+        <form id="request-message-form" class="space-y-6">
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/40" for="request-message">Message</label>
+            <textarea id="request-message" class="mt-3 w-full border border-border-sep bg-white p-4 text-sm min-h-[180px]" placeholder="Write a short, thoughtful note..." required></textarea>
+          </div>
+          <div class="flex items-center gap-4">
+            <button class="bg-navy-academic text-white text-[10px] font-bold uppercase tracking-[0.3em] px-8 py-3 hover:bg-navy-academic/90 transition-colors" type="submit">
+              Send request
+            </button>
+            <span id="request-message-status" class="text-xs text-charcoal/50"></span>
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

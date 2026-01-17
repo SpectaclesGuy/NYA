@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Premium NYA Sign-In</title>
+<link rel="icon" type="image/png" href="/assets/logo.png"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Playfair+Display:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://accounts.google.com/gsi/client" async="" defer=""></script>
+<script src="/pages/nya.js?v=2" defer=""></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1F2A36",
+                        "bg-soft": "#F7F6F3",
+                        "navy-hover": "#243342",
+                        "accent-gold": "#C7A35A",
+                        "warm-gray": "#E3DED6",
+                    },
+                    fontFamily: {
+                        "sans": ["Montserrat", "sans-serif"],
+                        "serif": ["Montserrat", "serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0, 27, 61, 0.05)',
+                        'button': '0 4px 14px 0 rgba(0, 27, 61, 0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-bg-soft text-slate-900 font-sans;
+            }
+            h1, h2, h3 {
+                @apply font-serif;
+            }
+        }
+        .material-symbols-outlined {
+            font-size: 20px;
+        }
+    </style>
+<link href="/pages/nya.css" rel="stylesheet"/>
+</head>
+<body class="min-h-screen flex flex-col">
+<main class="flex-grow flex items-center justify-center px-6 py-16">
+<div class="w-full max-w-[1040px] flex flex-col md:flex-row items-center md:items-stretch gap-12">
+<div class="w-full md:w-1/2 flex flex-col items-center text-center">
+<div id="auth-logo" class="mb-8 flex items-center justify-center">
+<img alt=\"NYA logo\" class="h-69 w-[480px] max-w-full object-contain" src="/assets/nya_logo_nobg.png"/>
+</div>
+<div id="auth-body" class="w-full flex flex-col items-center">
+<div class="mb-10 text-center">
+<h1 class="text-primary text-4xl font-semibold tracking-[0.2em] uppercase mb-3">NYA Community</h1>
+<p class="text-slate-400 text-xs font-bold uppercase tracking-[0.3em]">Not Your Average Community</p>
+</div>
+<p class="text-slate-500 text-sm leading-relaxed max-w-[320px] text-center">
+                    Access the exclusive platform for Thapar's Not So Average People.
+                </p>
+</div>
+</div>
+<div class="w-full md:w-1/2 flex justify-center md:justify-end">
+<div id="auth-card" class="w-full max-w-[380px] bg-white/90 rounded-2xl px-8 pt-8 pb-4 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.18)] border border-white/80 backdrop-blur">
+<div class="mb-6 text-center">
+<p class="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400">Welcome</p>
+<h3 class="text-primary text-2xl font-bold mt-2">Sign in to the community</h3>
+</div>
+<div class="flex flex-col gap-4 items-center">
+<div id="google-button" class="w-full flex justify-center"></div>
+<button id="dev-login-button" class="w-full rounded-xl border border-primary/20 text-primary text-[11px] font-semibold tracking-[0.25em] uppercase py-3 hover:bg-primary hover:text-white transition-colors">
+                    Dev Login
+                </button>
+<p id="auth-status" class="text-[11px] text-slate-400 text-center"></p>
+</div>
+<div class="mt-3 pt-2 border-t border-slate-100">
+<div class="flex items-center gap-2 justify-center text-slate-400">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<p class="text-[10px] font-bold leading-normal uppercase tracking-[0.2em]">
+                        Use your campus email to sign in
+                    </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed inset-0 -z-10 h-full w-full pointer-events-none">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(0,27,61,0.03)_0%,transparent_70%)]"></div>
+</div>
+
+</body></html>
+

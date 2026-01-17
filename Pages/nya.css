@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --nya-font: 'Montserrat', sans-serif;
+}
+
+body {
+  font-family: var(--nya-font);
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined", sans-serif;
+  visibility: hidden;
+}
+
+.fonts-loaded .material-symbols-outlined {
+  visibility: visible;
+}

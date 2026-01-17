@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NYA Transition</title>
+<link rel="icon" type="image/png" href="/assets/logo.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="/pages/nya.js?v=2" defer=""></script>
+<style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: #ffffff;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2a36;
+        }
+        .transition-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+        .transition-label {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: rgba(31, 42, 54, 0.55);
+        }
+        .video-frame {
+            width: 510px;
+            max-width: 65vw;
+            overflow: hidden;
+        }
+        video {
+            width: 100%;
+            display: block;
+            transform: scale(1.06);
+            border-radius: 0;
+            box-shadow: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="transition-wrap">
+<div class="video-frame">
+<video id="transition-video" autoplay muted playsinline>
+<source src="/assets/animation1.mp4" type="video/mp4"/>
+</video>
+</div>
+<div class="transition-label">Loading NYA</div>
+</div>
+<script>
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get('target') || '/dashboard';
+        const video = document.getElementById('transition-video');
+        const go = () => { window.location.href = target; };
+        const timer = window.setTimeout(go, 3000);
+        if (video) {
+            video.addEventListener('ended', () => {
+                window.clearTimeout(timer);
+                go();
+            });
+            video.addEventListener('error', () => {
+                window.clearTimeout(timer);
+                go();
+            });
+        }
+    </script>
+</body></html>

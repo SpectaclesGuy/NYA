@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Curated NYA Dashboard</title>
+<link rel="icon" type="image/png" href="/assets/logo.png"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:ital,wght@0,700;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="/pages/nya.js?v=2" defer=""></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1F2A36","parchment": "#F7F3EC",
+                        "warm-gray": "#E3DED6",
+                        "background-light": "#F7F6F3",
+                        "accent-gold": "#C7A35A",
+                    },
+                    fontFamily: {
+                        "sans": ["Montserrat", "sans-serif"],
+                        "serif": ["Montserrat", "serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-background-light text-[#1a1a1a] antialiased;
+            }
+            h2, h3 {
+                @apply font-serif;
+            }
+        }
+        .dashboard-main {
+            height: calc(100vh - 80px);
+        }
+        .dashboard-scroll {
+            overflow-y: auto;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+        }
+        .discover-list.list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .discover-list.list-view .discover-card {
+            display: flex;
+            flex-direction: row;
+            gap: 24px;
+            align-items: center;
+        }
+        .discover-list.list-view .discover-card .discover-media {
+            flex: 0 0 auto;
+        }
+        .discover-list.list-view .discover-card .discover-body {
+            flex: 1 1 auto;
+        }
+        .shuffle-overlay {
+            background: rgba(15, 20, 26, 0.55);
+            backdrop-filter: blur(6px);
+        }
+        .shuffle-card {
+            box-shadow: 0 30px 60px -35px rgba(31, 42, 54, 0.45);
+        }
+        .shuffle-card.enter {
+            animation: shuffleEnter 320ms ease-out;
+        }
+        @keyframes shuffleEnter {
+            from {
+                transform: translateY(14px) scale(0.98);
+                opacity: 0.6;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+<link href="/pages/nya.css" rel="stylesheet"/>
+</head>
+<body class="min-h-screen">
+<div class="flex flex-col min-h-screen">
+<header class="sticky top-0 z-50 bg-white border-b border-warm-gray">
+<div class="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between">
+<div class="flex items-center gap-16">
+<div class="flex items-center gap-3">
+<div class="flex items-center">
+<img alt=\"NYA logo\" class="h-10 w-auto object-contain" src="/assets/nya_logo.png"/>
+</div>
+<h1 class="text-sm font-semibold tracking-[0.2em] uppercase hidden md:block">NYA Community</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-xs font-semibold tracking-widest uppercase border-b-2 border-primary pb-1" href="/dashboard">Discover</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/profile/setup">Update Profile</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentors">Prefects</a>
+<a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/requests">My Team</a>
+<a id="mentor-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentor/dashboard">Prefect Dashboard</a>
+<a id="admin-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/admin/users">Admin</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button id="logout-button" class="hidden sm:inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">logout</span>
+Logout
+</button>
+<div class="h-6 w-[1px] bg-warm-gray"></div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<p class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Collaborator</p>
+<span id="nav-user-name" class="text-xs font-medium">Member</span>
+</div>
+<a id="nav-profile-link" class="w-10 h-10 rounded-full bg-cover bg-center border border-warm-gray" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXMAuFlpfGLb8YpJibsxtzbW83UZ6AareCHOsAxn3Nf94v-Nz39G_zgXq-K9q-IOgNC-XRxVBc2u0mc8wDa1O4aBFq0gysh8JdizlaWNWeUjtlUdSp1wbxB92BVSunOEYWOvQvPcdB_Ze_0LrVIh9NxR1-vyYotaH4MMbA8_8ZlfZOPRIjW3GsnLyJUVg7HQ_UhlQ7-eieV8mDRAmWLuQVbDb0UjADjJRw2fqW-2FIDDOX2NZEBF7aGVzk3CmAr5GeiGGCicRaQMk");' href="/profile" aria-label="View profile"></a>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1400px] mx-auto w-full flex-1 flex dashboard-main overflow-hidden">
+<div id="dashboard-scroll" class="flex-1 px-8 py-12 dashboard-scroll">
+<div class="mb-16">
+<div class="flex flex-col gap-6 border border-warm-gray bg-white/70 p-8 md:p-10">
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Welcome back</p>
+<h2 class="text-3xl text-primary italic mt-2">Curate your capstone circle, <span id="welcome-name">member</span>.</h2>
+<p class="text-sm text-gray-500 mt-3 max-w-xl">Search by skill, review availability, and reach out with a thoughtful request to start building your team.</p>
+</div>
+<div class="flex flex-col items-start gap-3">
+<a class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-primary px-4 py-2 hover:bg-primary hover:text-white transition-colors" href="/mentors">Explore Prefects</a>
+<a class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-warm-gray px-4 py-2 hover:border-primary transition-colors" href="/requests">Review Requests</a>
+<button id="shuffle-match" class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-warm-gray px-4 py-2 hover:border-primary transition-colors" type="button">Shuffle Match</button>
+</div>
+</div>
+</div>
+<div class="max-w-2xl mt-10">
+<div class="relative group flex items-center border-b border-warm-gray focus-within:border-primary transition-colors py-2">
+<span class="material-symbols-outlined text-gray-400 mr-4">search</span>
+<input id="discover-search" class="w-full bg-transparent border-none focus:ring-0 p-0 text-lg font-serif italic placeholder:text-gray-300 placeholder:italic" placeholder="Search by name, theme, or skill..." type="text"/>
+</div>
+        <div class="mt-6"></div>
+</div>
+</div>
+<section id="discover-section">
+<div class="flex items-end justify-between mb-10 border-b border-warm-gray pb-4">
+<h2 class="text-4xl text-primary italic">Discover Capstone Members</h2>
+<div class="flex items-center gap-6">
+<p id="discover-count" class="text-[11px] font-medium text-gray-400 uppercase tracking-[0.2em]">Showing 0 Candidates</p>
+        <div class="flex gap-2">
+          <button id="view-grid" class="p-1 text-primary" aria-pressed="true" type="button"><span class="material-symbols-outlined">grid_view</span></button>
+          <button id="view-list" class="p-1 text-gray-300 hover:text-primary" aria-pressed="false" type="button"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+        </div>
+</div>
+</div>
+    <div id="discover-list" class="discover-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+    <div class="mt-10 flex items-center justify-between">
+      <button id="discover-prev" class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-warm-gray px-4 py-2 hover:border-primary transition-colors" type="button">Previous</button>
+      <p id="discover-page" class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Page 1</p>
+      <button id="discover-next" class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-warm-gray px-4 py-2 hover:border-primary transition-colors" type="button">Next</button>
+    </div>
+</section>
+</div>
+<aside class="hidden xl:block w-96 bg-parchment border-l border-warm-gray px-10 pb-10 pt-12 dashboard-scroll">
+<div class="flex flex-col gap-10">
+<div class="mb-12">
+<h3 class="text-2xl text-primary italic mb-2">Curated Matches</h3>
+<p class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Based on your project interests</p>
+</div>
+<div id="recommended-list" class="space-y-10"></div>
+</div>
+</aside>
+</main>
+</div>
+<div id="shuffle-modal" class="fixed inset-0 hidden items-center justify-center shuffle-overlay px-6 py-10">
+  <div class="w-full max-w-3xl bg-white border border-warm-gray p-8 shuffle-card">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Shuffle Match</p>
+        <h3 class="text-3xl text-primary italic mt-2">Quick picks</h3>
+      </div>
+      <button id="shuffle-close" class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 hover:text-primary" type="button">Close</button>
+    </div>
+    <div id="shuffle-card" class="border border-warm-gray p-6"></div>
+    <div class="mt-6 flex flex-wrap gap-3 justify-center">
+      <button id="shuffle-next" class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-warm-gray px-4 py-2 hover:border-primary transition-colors" type="button">Next Profile</button>
+      <button id="shuffle-request" class="text-[11px] font-semibold uppercase tracking-[0.2em] border border-primary px-4 py-2 hover:bg-primary hover:text-white transition-colors" type="button">Send Request</button>
+    </div>
+  </div>
+</div>
+
+</body></html>
+
+
