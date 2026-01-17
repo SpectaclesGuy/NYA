@@ -8,3 +8,5 @@ pyjwt==2.9.0
 google-auth==2.33.0
 anyio==4.4.0
 pymongo==4.8.0
+email-validator
+requests
