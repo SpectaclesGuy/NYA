@@ -124,6 +124,60 @@ class EmailService:
             return
         await self._send_email(recipient_email, subject, html_body)
 
+    async def send_mentor_application_created(
+        self,
+        *,
+        recipient_email: str,
+        recipient_name: str,
+        applicant_name: str,
+        applicant_email: str,
+        domain: str,
+        experience_years: str,
+        expertise: str,
+        availability: str,
+        bio: str,
+        links: str,
+        cta_url: str,
+    ) -> None:
+        if not self._enabled():
+            return
+        html_body = self._render_template(
+            "email_mentor_application_created.html",
+            {
+                "recipient_name": html.escape(recipient_name or "there"),
+                "applicant_name": html.escape(applicant_name or "A student"),
+                "applicant_email": html.escape(applicant_email or ""),
+                "domain": html.escape(domain or ""),
+                "experience_years": html.escape(experience_years or "0"),
+                "expertise": html.escape(expertise or ""),
+                "availability": html.escape(availability or ""),
+                "bio": html.escape(bio or ""),
+                "links": html.escape(links or ""),
+                "cta_url": html.escape(cta_url),
+            },
+        )
+        subject = f"New prefect application: {applicant_name}"
+        await self._send_email(recipient_email, subject, html_body)
+
+    async def send_mentor_application_approved(
+        self,
+        *,
+        recipient_email: str,
+        recipient_name: str,
+        cta_url: str,
+    ) -> None:
+        if not self._enabled():
+            return
+        html_body = self._render_template(
+            "email_mentor_application_approved.html",
+            {
+                "recipient_name": html.escape(recipient_name or "there"),
+                "cta_url": html.escape(cta_url),
+            },
+        )
+        subject = "You're approved as a NYA prefect"
+        await self._send_email(recipient_email, subject, html_body)
+
     async def _send_email(self, to_email: str, subject: str, html_body: str) -> None:
         await asyncio.to_thread(self._send_email_sync, to_email, subject, html_body)
 

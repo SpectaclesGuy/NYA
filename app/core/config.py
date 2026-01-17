@@ -81,6 +81,10 @@ class Settings(BaseSettings):
         default=False,
         validation_alias=AliasChoices("NYA_ALLOW_ALL_DOMAINS", "ALLOW_ALL_DOMAINS"),
     )
+    admin_emails: str = Field(
+        default="",
+        validation_alias=AliasChoices("NYA_ADMIN_EMAILS", "ADMIN_EMAILS"),
+    )
 
     smtp_enabled: bool = Field(
         default=False,
@@ -110,6 +114,12 @@ class Settings(BaseSettings):
         default=False,
         validation_alias=AliasChoices("NYA_SMTP_USE_STARTTLS", "SMTP_USE_STARTTLS"),
     )
+
+    @property
+    def admin_email_list(self) -> list[str]:
+        if not self.admin_emails:
+            return []
+        return [email.strip().lower() for email in self.admin_emails.split(",") if email.strip()]
 
 
 settings = Settings()

@@ -28,9 +28,18 @@ class AuthService:
             raise AppError(403, "invalid_domain", "Only @thapar.edu emails are allowed")
 
         user = await self.user_service.get_user_by_email(email)
+        is_admin = self._is_admin_email(email)
         if not user:
-            user = await self.user_service.create_user(name=name, email=email, role="USER")
+            user = await self.user_service.create_user(
+                name=name,
+                email=email,
+                role="ADMIN" if is_admin else "USER",
+                role_selected=is_admin,
+            )
         else:
+            if is_admin and (user.get("role") != "ADMIN" or not user.get("role_selected", False)):
+                await self.user_service.update_role(user["id"], "ADMIN", role_selected=True)
+                user = await self.user_service.get_user_by_id(user["id"])
             await self.user_service.update_last_login(user["id"])
 
         access_token = create_access_token(user["id"])
@@ -64,9 +73,18 @@ class AuthService:
             raise AppError(403, "invalid_domain", "Only @thapar.edu emails are allowed")
         display_name = name or email.split("@")[0]
         user = await self.user_service.get_user_by_email(email)
+        is_admin = self._is_admin_email(email)
         if not user:
-            user = await self.user_service.create_user(name=display_name, email=email, role="USER")
+            user = await self.user_service.create_user(
+                name=display_name,
+                email=email,
+                role="ADMIN" if is_admin else "USER",
+                role_selected=is_admin,
+            )
         else:
+            if is_admin and (user.get("role") != "ADMIN" or not user.get("role_selected", False)):
+                await self.user_service.update_role(user["id"], "ADMIN", role_selected=True)
+                user = await self.user_service.get_user_by_id(user["id"])
             await self.user_service.update_last_login(user["id"])
         return {
             "user": user,
@@ -94,3 +112,6 @@ class AuthService:
         if settings.allow_all_domains:
             return True
         return email.lower().endswith("@thapar.edu")
+
+    def _is_admin_email(self, email: str) -> bool:
+        return email.lower() in settings.admin_email_list

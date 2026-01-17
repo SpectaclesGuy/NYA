@@ -266,10 +266,14 @@ async function initAuthPage() {
     use_fedcm_for_prompt: false,  
   });
 
+  const buttonWidth = Math.min(
+    360,
+    Math.max(240, Math.floor(button.getBoundingClientRect().width || 360)),
+  );
   window.google.accounts.id.renderButton(button, {
     theme: 'outline',
     size: 'large',
-    width: 360,
+    width: buttonWidth,
   });
 
   window.google.accounts.id.prompt((notification) => {
