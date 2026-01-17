@@ -20,14 +20,14 @@ async def google_login(payload: GoogleLoginRequest, response: Response, db=Depen
     return {"user": result["user"]}
 
 
-@router.post("/dev-login", response_model=AuthResponse)
-async def dev_login(payload: DevLoginRequest, response: Response, db=Depends(get_db)):
-    if not settings.dev_login_enabled:
-        raise AppError(404, "not_found", "Endpoint not available")
-    auth = AuthService(db)
-    result = await auth.dev_login(payload.email, payload.name)
-    set_auth_cookies(response, result["access_token"], result["refresh_token"])
-    return {"user": result["user"]}
+# @router.post("/dev-login", response_model=AuthResponse)
+# async def dev_login(payload: DevLoginRequest, response: Response, db=Depends(get_db)):
+#     if not settings.dev_login_enabled:
+#         raise AppError(404, "not_found", "Endpoint not available")
+#     auth = AuthService(db)
+#     result = await auth.dev_login(payload.email, payload.name)
+#     set_auth_cookies(response, result["access_token"], result["refresh_token"])
+#     return {"user": result["user"]}
 
 
 @router.post("/refresh", response_model=AuthResponse)
