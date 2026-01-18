@@ -43,4 +43,14 @@ class AdminUserService:
         if action == "unblock":
             await self.db.users.update_one({"_id": ObjectId(user_id)}, {"$set": {"blocked": False}})
             return
+        if action == "reset_profile":
+            object_id = ObjectId(user_id)
+            await self.db.capstone_profiles.delete_many({"user_id": object_id})
+            await self.db.mentor_profiles.delete_many({"user_id": object_id})
+            await self.db.mentor_email_templates.delete_many({"mentor_id": object_id})
+            await self.db.users.update_one(
+                {"_id": object_id},
+                {"$set": {"role": "USER", "role_selected": False}},
+            )
+            return
         raise AppError(400, "invalid_action", "Invalid admin action")

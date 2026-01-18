@@ -89,6 +89,8 @@ async function initGlobalNav() {
   const profileLink = document.getElementById('nav-profile-link');
   const adminLink = document.getElementById('admin-nav');
   const mentorLink = document.getElementById('mentor-nav');
+  const adminLinks = document.querySelectorAll('[data-nav-id="admin-nav"]');
+  const mentorLinks = document.querySelectorAll('[data-nav-id="mentor-nav"]');
   const welcomeName = document.getElementById('welcome-name');
   if (!nameEl && !profileLink && !adminLink && !mentorLink && !welcomeName) {
     return;
@@ -105,8 +107,11 @@ async function initGlobalNav() {
     if (profileLink && me?.id) {
       profileLink.href = `/profile?user_id=${me.id}`;
     }
-    if (me?.role === 'ADMIN' && adminLink) {
-      adminLink.classList.remove('hidden');
+    if (me?.role === 'ADMIN') {
+      if (adminLink) {
+        adminLink.classList.remove('hidden');
+      }
+      adminLinks.forEach((link) => link.classList.remove('hidden'));
     }
   } catch (error) {
     // ignore
@@ -119,6 +124,12 @@ async function initGlobalNav() {
     }
     if (status.role === 'MENTOR' && status.mentor_approved && mentorLink) {
       mentorLink.classList.remove('hidden');
+    }
+    if (status.role === 'ADMIN') {
+      adminLinks.forEach((link) => link.classList.remove('hidden'));
+    }
+    if (status.role === 'MENTOR' && status.mentor_approved) {
+      mentorLinks.forEach((link) => link.classList.remove('hidden'));
     }
   } catch (error) {
     // ignore
@@ -266,10 +277,8 @@ async function initAuthPage() {
     use_fedcm_for_prompt: false,  
   });
 
-  const buttonWidth = Math.min(
-    360,
-    Math.max(240, Math.floor(button.getBoundingClientRect().width || 360)),
-  );
+  const containerWidth = button.getBoundingClientRect().width || button.parentElement?.getBoundingClientRect().width || 320;
+  const buttonWidth = Math.max(200, Math.floor(containerWidth));
   window.google.accounts.id.renderButton(button, {
     theme: 'outline',
     size: 'large',
@@ -993,7 +1002,7 @@ function renderTeamRow(request) {
 }
 
 function initLogoutButtons() {
-  const buttons = document.querySelectorAll('#logout-button');
+  const buttons = document.querySelectorAll('#logout-button, [data-logout]');
   if (!buttons.length) {
     return;
   }
@@ -1004,6 +1013,79 @@ function initLogoutButtons() {
       } finally {
         window.location.href = '/authentication';
       }
+    });
+  });
+}
+
+function initMobileNav() {
+  const headers = document.querySelectorAll('header');
+  if (!headers.length) {
+    return;
+  }
+
+  headers.forEach((header, index) => {
+    const nav = header.querySelector('nav');
+    if (!nav || header.querySelector('[data-mobile-nav-toggle]')) {
+      return;
+    }
+    const rightSlot = header.querySelector('.flex.items-center.gap-6');
+    if (!rightSlot) {
+      return;
+    }
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className =
+      'md:hidden inline-flex items-center justify-center w-10 h-10 border border-warm-gray text-primary';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', `mobile-nav-panel-${index}`);
+    toggle.setAttribute('data-mobile-nav-toggle', '');
+    toggle.innerHTML = '<span class="material-symbols-outlined">menu</span>';
+    rightSlot.insertBefore(toggle, rightSlot.firstChild);
+
+    const panel = document.createElement('div');
+    panel.className = 'mobile-nav-panel md:hidden hidden';
+    panel.id = `mobile-nav-panel-${index}`;
+    panel.setAttribute('data-mobile-nav-panel', '');
+
+    const links = Array.from(nav.querySelectorAll('a'));
+    panel.innerHTML = links
+      .map((link) => {
+        const text = link.textContent?.trim() || '';
+        const href = link.getAttribute('href') || '#';
+        const hidden = link.classList.contains('hidden') ? ' hidden' : '';
+        const dataNav = link.id ? ` data-nav-id="${link.id}"` : '';
+        return `<a class="mobile-nav-link${hidden}"${dataNav} href="${href}">${text}</a>`;
+      })
+      .join('');
+
+    if (header.querySelector('#logout-button')) {
+      panel.innerHTML += '<button class="mobile-nav-action" data-logout type="button">Logout</button>';
+    }
+
+    header.after(panel);
+
+    const closePanel = () => {
+      panel.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    const openPanel = () => {
+      panel.classList.remove('hidden');
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+
+    toggle.addEventListener('click', () => {
+      if (panel.classList.contains('hidden')) {
+        openPanel();
+      } else {
+        closePanel();
+      }
+    });
+
+    panel.querySelectorAll('a, [data-logout]').forEach((node) => {
+      node.addEventListener('click', () => {
+        closePanel();
+      });
     });
   });
 }
@@ -1428,6 +1510,7 @@ async function initAdminUsersPage() {
               ${user.blocked
                 ? '<button class="border border-warm-gray text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="unblock">Unblock</button>'
                 : '<button class="border border-warm-gray text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="block">Block</button>'}
+              <button class="border border-warm-gray text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="reset-profile">Reset Profile</button>
             </div>
           </div>
         </div>
@@ -1471,6 +1554,20 @@ async function initAdminUsersPage() {
         const id = card?.getAttribute('data-user-id');
         if (!id) return;
         await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'unblock' }) });
+        allUsers = await load();
+        render(allUsers);
+      });
+    });
+    container.querySelectorAll('[data-action="reset-profile"]').forEach((button) => {
+      button.addEventListener('click', async (event) => {
+        const card = event.currentTarget.closest('[data-user-id]');
+        const id = card?.getAttribute('data-user-id');
+        if (!id) return;
+        const confirmReset = window.confirm('Reset this profile? The user will need to onboard again.');
+        if (!confirmReset) {
+          return;
+        }
+        await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'reset_profile' }) });
         allUsers = await load();
         render(allUsers);
       });
@@ -1829,6 +1926,7 @@ async function initPrefectPendingPage() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initFontLoading();
+  initMobileNav();
   initGlobalNav();
   initAuthPage();
   initDashboardPage();
@@ -1847,4 +1945,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initPrefectsPage();
   initRequestsPage();
   initLogoutButtons();
+  initMobileNav();
 });

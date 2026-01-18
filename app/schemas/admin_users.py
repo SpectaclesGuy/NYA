@@ -17,4 +17,4 @@ class AdminUserSummary(BaseModel):
 
 
 class AdminUserUpdate(BaseModel):
-    action: Literal["make_admin", "remove_admin", "block", "unblock"]
+    action: Literal["make_admin", "remove_admin", "block", "unblock", "reset_profile"]

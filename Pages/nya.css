@@ -8,6 +8,20 @@ body {
   font-family: var(--nya-font);
 }
 
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+svg,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined", sans-serif;
   visibility: hidden;
@@ -19,6 +33,10 @@ body {
 
 #google-button {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 #google-button > div,
@@ -26,4 +44,88 @@ body {
   width: 100% !important;
   max-width: 100%;
   display: block;
+  margin: 0 auto;
+}
+
+#google-button > div {
+  max-width: 100%;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 640px) {
+  .px-8 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .px-10 {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .py-12 {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+  .py-20 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  .gap-10 {
+    gap: 1.5rem;
+  }
+  .gap-16 {
+    gap: 2rem;
+  }
+  .h-20 {
+    height: 4.5rem;
+  }
+  .text-6xl {
+    font-size: 2.5rem;
+    line-height: 1.15;
+  }
+  .text-4xl {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  .text-3xl {
+    font-size: 1.75rem;
+  }
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  .dashboard-main {
+    height: auto;
+  }
+  .dashboard-scroll {
+    overflow: visible;
+  }
+}
+
+.mobile-nav-panel {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #e3ded6;
+  backdrop-filter: blur(6px);
+}
+
+.mobile-nav-link,
+.mobile-nav-action {
+  display: block;
+  padding: 0.85rem 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(31, 42, 54, 0.7);
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-action:hover {
+  color: #1f2a36;
+}
+
+.mobile-nav-link + .mobile-nav-link,
+.mobile-nav-action {
+  border-top: 1px solid rgba(227, 222, 214, 0.8);
 }

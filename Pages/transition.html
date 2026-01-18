@@ -59,16 +59,32 @@
         const params = new URLSearchParams(window.location.search);
         const target = params.get('target') || '/dashboard';
         const video = document.getElementById('transition-video');
-        const go = () => { window.location.href = target; };
-        const timer = window.setTimeout(go, 3000);
+        const minDurationMs = 8000;
+        const startedAt = Date.now();
+        let navigated = false;
+        const go = () => {
+            if (navigated) return;
+            navigated = true;
+            window.location.href = target;
+        };
+        const timer = window.setTimeout(go, minDurationMs);
+        const waitForMinDuration = () => {
+            const elapsed = Date.now() - startedAt;
+            const remaining = minDurationMs - elapsed;
+            if (remaining <= 0) {
+                go();
+            } else {
+                window.setTimeout(go, remaining);
+            }
+        };
         if (video) {
             video.addEventListener('ended', () => {
                 window.clearTimeout(timer);
-                go();
+                waitForMinDuration();
             });
             video.addEventListener('error', () => {
                 window.clearTimeout(timer);
-                go();
+                waitForMinDuration();
             });
         }
     </script>
