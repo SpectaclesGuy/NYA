@@ -47,3 +47,26 @@ async def require_admin(current_user=Depends(get_current_user)):
     if current_user["role"] != "ADMIN":
         raise AppError(403, "forbidden", "Admin access required")
     return current_user
+
+
+async def require_onboarding_complete(current_user=Depends(get_current_user), db=Depends(get_db)):
+    if current_user.get("role") == "ADMIN":
+        return current_user
+
+    user_id = current_user.get("id")
+    if not user_id or not ObjectId.is_valid(user_id):
+        raise AppError(403, "profile_incomplete", "Complete your profile")
+
+    object_id = ObjectId(user_id)
+    if current_user.get("role") == "MENTOR":
+        doc = await db.mentor_profiles.find_one({"user_id": object_id})
+        if not doc:
+            raise AppError(403, "profile_incomplete", "Complete your mentor profile")
+        if not doc.get("approved_by_admin", False):
+            raise AppError(403, "mentor_pending", "Mentor profile pending approval")
+        return current_user
+
+    doc = await db.capstone_profiles.find_one({"user_id": object_id})
+    if not doc:
+        raise AppError(403, "profile_incomplete", "Complete your profile")
+    return current_user

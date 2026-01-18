@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.dependencies import get_current_user, get_db
+from app.core.dependencies import get_current_user, get_db, require_onboarding_complete
 from app.schemas.mentor import (
     MentorDetail,
     MentorEmailTemplateDetail,
@@ -32,7 +32,7 @@ async def get_my_mentor_profile(current_user=Depends(get_current_user), db=Depen
 @router.post("/me", response_model=MentorMeResponse)
 async def upsert_my_mentor_profile(
     payload: MentorUpsertRequest,
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_onboarding_complete),
     db=Depends(get_db),
 ):
     if current_user.get("role") != "MENTOR":
@@ -65,7 +65,7 @@ async def list_mentors(
 
 
 @router.get("/email-templates", response_model=list[MentorEmailTemplateSummary])
-async def list_mentor_email_templates(current_user=Depends(get_current_user), db=Depends(get_db)):
+async def list_mentor_email_templates(current_user=Depends(require_onboarding_complete), db=Depends(get_db)):
     if current_user.get("role") != "MENTOR":
         raise AppError(403, "forbidden", "Prefect access required")
     return MentorEmailTemplateService(db).list_templates()
@@ -73,7 +73,7 @@ async def list_mentor_email_templates(current_user=Depends(get_current_user), db
 
 @router.get("/email-templates/{template_id}", response_model=MentorEmailTemplateDetail)
 async def get_mentor_email_template(
-    template_id: str, current_user=Depends(get_current_user), db=Depends(get_db)
+    template_id: str, current_user=Depends(require_onboarding_complete), db=Depends(get_db)
 ):
     if current_user.get("role") != "MENTOR":
         raise AppError(403, "forbidden", "Prefect access required")
@@ -85,7 +85,7 @@ async def get_mentor_email_template(
 async def update_mentor_email_template(
     template_id: str,
     payload: MentorEmailTemplateUpdate,
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_onboarding_complete),
     db=Depends(get_db),
 ):
     if current_user.get("role") != "MENTOR":
@@ -99,7 +99,7 @@ async def update_mentor_email_template(
 async def preview_mentor_email_template(
     template_id: str,
     payload: MentorEmailTemplatePreviewRequest,
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_onboarding_complete),
     db=Depends(get_db),
 ):
     if current_user.get("role") != "MENTOR":
@@ -110,6 +110,6 @@ async def preview_mentor_email_template(
 
 
 @router.get("/{mentor_id}", response_model=MentorDetail)
-async def get_mentor(mentor_id: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def get_mentor(mentor_id: str, current_user=Depends(require_onboarding_complete), db=Depends(get_db)):
     service = MentorService(db)
     return await service.get_mentor(mentor_id)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bson import ObjectId
 from fastapi import FastAPI, Request, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,10 +68,33 @@ def create_app() -> FastAPI:
 
         @app.get("/")
         async def root():
-            return RedirectResponse(url="/authentication")
+            return page("landing.html")
+
+        @app.get("/landing")
+        async def landing_page():
+            return page("landing.html")
 
         def page(path: str) -> FileResponse:
             return FileResponse(str(pages_dir / path))
+
+        async def redirect_if_incomplete(user: dict, db):
+            if user.get("role") == "ADMIN":
+                return None
+            user_id = user.get("id")
+            if not user_id or not ObjectId.is_valid(user_id):
+                return RedirectResponse(url="/authentication")
+            object_id = ObjectId(user_id)
+            if user.get("role") == "MENTOR":
+                doc = await db.mentor_profiles.find_one({"user_id": object_id})
+                if not doc:
+                    return RedirectResponse(url="/mentor/setup")
+                if not doc.get("approved_by_admin", False):
+                    return RedirectResponse(url="/mentor/pending")
+                return None
+            doc = await db.capstone_profiles.find_one({"user_id": object_id})
+            if not doc:
+                return RedirectResponse(url="/profile/setup")
+            return None
 
         @app.get("/authentication")
         async def authentication_page():
@@ -87,11 +111,22 @@ def create_app() -> FastAPI:
             except AppError:
                 return RedirectResponse(url="/authentication")
             if user.get("role") == "MENTOR":
-                return RedirectResponse(url="/mentor/dashboard")
+                redirect = await redirect_if_incomplete(user, db)
+                return redirect or RedirectResponse(url="/mentor/dashboard")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("dashboard.html")
 
         @app.get("/profile")
-        async def profile_page():
+        async def profile_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("profile_view.html")
 
         @app.get("/profile/setup")
@@ -103,27 +138,73 @@ def create_app() -> FastAPI:
             return page("mentor_setup.html")
 
         @app.get("/mentor/pending")
-        async def mentor_pending_page():
+        async def mentor_pending_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            if user.get("role") != "MENTOR":
+                return RedirectResponse(url="/dashboard")
+            user_id = user.get("id")
+            if not user_id or not ObjectId.is_valid(user_id):
+                return RedirectResponse(url="/mentor/setup")
+            doc = await db.mentor_profiles.find_one({"user_id": ObjectId(user_id)})
+            if not doc:
+                return RedirectResponse(url="/mentor/setup")
+            if doc.get("approved_by_admin", False):
+                return RedirectResponse(url="/mentor/dashboard")
             return page("mentor_pending.html")
 
         @app.get("/mentor/dashboard")
-        async def mentor_dashboard_page():
+        async def mentor_dashboard_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            if user.get("role") != "MENTOR":
+                return RedirectResponse(url="/dashboard")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("mentor_dashboard.html")
 
         @app.get("/mentor_dashboard")
-        async def mentor_dashboard_alias():
-            return page("mentor_dashboard.html")
+        async def mentor_dashboard_alias(request: Request, db=Depends(get_db)):
+            return await mentor_dashboard_page(request, db)
 
         @app.get("/mentor/emails")
-        async def mentor_emails_page():
+        async def mentor_emails_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            if user.get("role") != "MENTOR":
+                return RedirectResponse(url="/dashboard")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("mentor_emails.html")
 
         @app.get("/mentors")
-        async def mentors_page():
+        async def mentors_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("mentors.html")
 
         @app.get("/mentors/request")
-        async def mentors_request_page():
+        async def mentors_request_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("mentor_request.html")
 
         @app.get("/mentor_request")
@@ -131,11 +212,25 @@ def create_app() -> FastAPI:
             return page("mentor_request.html")
 
         @app.get("/requests")
-        async def requests_page():
+        async def requests_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("notifs_request.html")
 
         @app.get("/requests/new")
-        async def request_message_page():
+        async def request_message_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
             return page("request_message.html")
 
         @app.get("/transition")

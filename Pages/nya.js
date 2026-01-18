@@ -81,8 +81,49 @@ function initFontLoading() {
   }
 }
 
+async function initOnboardingGuard() {
+  const path = window.location.pathname;
+  const publicPaths = [
+    '/',
+    '/landing',
+    '/authentication',
+    '/onboarding/role',
+    '/profile/setup',
+    '/mentor/setup',
+  ];
+  if (publicPaths.includes(path)) {
+    return;
+  }
+
+  try {
+    const status = await apiFetch('/api/onboarding/status');
+    if (status.role === 'ADMIN') {
+      return;
+    }
+    if (!status.role_selected) {
+      window.location.href = '/onboarding/role';
+      return;
+    }
+    if (status.role === 'MENTOR') {
+      if (!status.has_profile) {
+        window.location.href = '/mentor/setup';
+        return;
+      }
+      if (!status.mentor_approved && path !== '/mentor/pending') {
+        window.location.href = '/mentor/pending';
+      }
+      return;
+    }
+    if (!status.has_profile) {
+      window.location.href = '/profile/setup';
+    }
+  } catch (error) {
+    // ignore
+  }
+}
+
 async function initGlobalNav() {
-  if (window.location.pathname === '/authentication') {
+  if (window.location.pathname === '/authentication' || window.location.pathname === '/' || window.location.pathname === '/landing') {
     return;
   }
   const nameEl = document.getElementById('nav-user-name');
@@ -278,7 +319,8 @@ async function initAuthPage() {
   });
 
   const containerWidth = button.getBoundingClientRect().width || button.parentElement?.getBoundingClientRect().width || 320;
-  const buttonWidth = Math.max(200, Math.floor(containerWidth));
+  const targetWidth = 240;
+  const buttonWidth = Math.min(Math.max(200, targetWidth), Math.floor(containerWidth));
   window.google.accounts.id.renderButton(button, {
     theme: 'outline',
     size: 'large',
@@ -1927,6 +1969,7 @@ async function initPrefectPendingPage() {
 document.addEventListener('DOMContentLoaded', () => {
   initFontLoading();
   initMobileNav();
+  initOnboardingGuard();
   initGlobalNav();
   initAuthPage();
   initDashboardPage();

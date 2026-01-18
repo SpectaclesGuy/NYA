@@ -4,7 +4,7 @@ import re
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.dependencies import get_current_user, get_db
+from app.core.dependencies import get_current_user, get_db, require_onboarding_complete
 from app.schemas.user import CurrentUser, DiscoverUser
 from app.services.discovery_service import DiscoveryService
 from app.services.user_service import UserService
@@ -27,7 +27,7 @@ async def discover_users(
     mentor_assigned: bool | None = Query(default=None),
     limit: int = Query(default=20, ge=1, le=50),
     page: int = Query(default=1, ge=1),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_onboarding_complete),
     db=Depends(get_db),
 ):
     service = DiscoveryService(db)
@@ -45,7 +45,7 @@ async def discover_users(
 @router.get("/recommended", response_model=list[DiscoverUser])
 async def recommended_users(
     limit: int = Query(default=10, ge=1, le=30),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_onboarding_complete),
     db=Depends(get_db),
 ):
     service = DiscoveryService(db)

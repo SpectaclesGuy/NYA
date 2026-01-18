@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from app.core.dependencies import get_current_user, get_db
+from app.core.dependencies import get_current_user, get_db, require_onboarding_complete
 from app.schemas.profile import PublicProfileResponse
 from app.schemas.profile_setup import ProfileMeResponse, ProfileUpsertRequest
 from app.services.profile_service import ProfileService
@@ -41,6 +41,6 @@ async def upsert_my_profile(
 
 
 @router.get("/{user_id}", response_model=PublicProfileResponse)
-async def get_profile(user_id: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def get_profile(user_id: str, current_user=Depends(require_onboarding_complete), db=Depends(get_db)):
     service = ProfileService(db)
     return await service.get_public_profile(user_id)

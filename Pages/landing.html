@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>NYA Community</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1F2A36",
+              "bg-soft": "#F7F6F3",
+              "navy-hover": "#243342",
+              "accent-gold": "#C7A35A",
+              "warm-gray": "#E3DED6",
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+              serif: ["Montserrat", "sans-serif"],
+            },
+            boxShadow: {
+              premium: "0 10px 40px -10px rgba(0, 27, 61, 0.05)",
+              button: "0 4px 14px 0 rgba(0, 27, 61, 0.2)",
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-bg-soft text-slate-900 font-sans;
+        }
+      }
+      .word-fade {
+        transition: opacity 240ms ease, transform 240ms ease;
+      }
+    </style>
+    <link href="/pages/nya.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <main class="flex-grow flex items-center justify-center min-h-[100svh] px-6 py-10">
+      <div class="w-full max-w-[1100px] mx-auto flex flex-col items-center text-center gap-6">
+        <div class="flex items-center justify-center">
+          <img alt="NYA logo" class="h-72 md:h-136 object-contain" src="/assets/nya_logo_nobg.png" />
+        </div>
+        <div class="space-y-2">
+          <h1 class="text-primary text-4xl md:text-6xl font-sans font-semibold tracking-tight">
+            NotYourAverage .
+            <span
+              id="rotating-word"
+              class="word-fade inline-block text-primary font-sans font-semibold tracking-wide"
+              aria-live="polite"
+            >
+              XYZ
+            </span>
+          </h1>
+          <p class="text-slate-500 text-sm md:text-base max-w-[520px] mx-auto">
+            We are Live.
+          </p>
+          <div class="flex items-center justify-center pt-2">
+            <a
+              class="px-7 py-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-white bg-primary rounded-full shadow-button hover:bg-navy-hover transition"
+              href="/authentication"
+            >
+              Enter Community
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+    <div class="fixed inset-0 -z-10 h-full w-full pointer-events-none">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-[radial-gradient(circle_at_center,rgba(0,27,61,0.06)_0%,transparent_70%)]"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(110deg,rgba(199,163,90,0.06)_0%,transparent_55%)]"></div>
+    </div>
+    <script>
+      const words = ["XYZ", "Code", "Design", "Sports", "Games", "Fun", "Consultancy", "&", "More"];
+      const wordEl = document.getElementById("rotating-word");
+      let index = 0;
+
+      function rotateWord() {
+        wordEl.classList.add("opacity-0", "-translate-y-1");
+        setTimeout(() => {
+          index = (index + 1) % words.length;
+          wordEl.textContent = words[index];
+          wordEl.classList.remove("opacity-0", "-translate-y-1");
+        }, 240);
+      }
+
+      setInterval(rotateWord, 1600);
+    </script>
+  </body>
+</html>
