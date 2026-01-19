@@ -398,7 +398,7 @@ function renderDiscoverList(items) {
     container.innerHTML = `
       <div class="col-span-full border border-warm-gray bg-white p-10 text-center">
         <p class="text-sm uppercase tracking-[0.2em] text-gray-400">No matches yet</p>
-        <p class="text-xl font-serif italic text-primary mt-3">Try a skill keyword like "AI" or "Design".</p>
+        <p class="text-xl font-serif text-primary mt-3">Try a skill keyword like "AI" or "Design".</p>
       </div>
     `;
     return;
@@ -500,12 +500,12 @@ function renderRecommended(items) {
             <div class="w-full h-full bg-cover bg-center" style="background-image: url('${getAvatarUrl(item.id)}')"></div>
           </div>
           <div>
-            <p class="text-lg font-serif italic text-primary group-hover:underline">${item.name}</p>
+            <p class="text-lg font-serif text-primary group-hover:underline">${item.name}</p>
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">${item.skills[0] || 'Capstone'}</p>
           </div>
         </div>
         <div class="flex justify-between items-center text-[11px] border-t border-warm-gray pt-2 mt-2">
-          <span class="font-medium text-gray-500 italic">${statusLabel(item.team_status, item.team_count)}</span>
+          <span class="font-medium text-gray-500">${statusLabel(item.team_status, item.team_count)}</span>
           <span class="text-[9px] font-semibold uppercase tracking-[0.2em] ${statusStyles(item.team_status)} border px-2 py-0.5">${statusLabel(item.team_status, item.team_count)}</span>
           <span class="material-symbols-outlined text-gray-300 scale-75">arrow_forward_ios</span>
         </div>
@@ -620,7 +620,7 @@ async function initDashboardPage() {
       shuffleCard.innerHTML = `
         <div class="text-center py-12">
           <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">No matches</p>
-          <p class="text-lg font-serif italic text-primary mt-3">Try a search or refresh later.</p>
+          <p class="text-lg font-serif text-primary mt-3">Try a search or refresh later.</p>
         </div>
       `;
       return;
@@ -868,11 +868,11 @@ function renderPrefectList(mentors) {
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">${mentor.experience_years}+ Years Experience</span>
           </div>
           <h3 class="mentor-name text-4xl font-serif text-primary dark:text-white mb-2 transition-colors">${mentor.name}</h3>
-          <p class="text-sm font-light text-gray-500 italic">${mentor.bio || ''}</p>
+          <p class="text-sm font-light text-gray-500">${mentor.bio || ''}</p>
         </div>
         <div class="flex-1 mt-6 md:mt-0">
           <span class="text-[10px] font-bold text-primary/40 dark:text-white/40 uppercase tracking-widest block mb-2">Expertise</span>
-          <p class="text-lg font-serif italic text-primary/80 dark:text-gray-300 leading-relaxed">${(mentor.expertise || []).join(', ')}</p>
+          <p class="text-lg font-serif text-primary/80 dark:text-gray-300 leading-relaxed">${(mentor.expertise || []).join(', ')}</p>
         </div>
         <div class="flex items-center justify-end md:ml-12 mt-8 md:mt-0">
           <a class="group relative inline-flex items-center justify-center px-10 py-3 overflow-hidden font-bold transition-all bg-primary dark:bg-white text-white dark:text-primary hover:bg-navy-deep dark:hover:bg-gray-200" href="/mentors/request?mentor_id=${mentor.id}">
@@ -1458,7 +1458,7 @@ async function initAdminPrefectsPage() {
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${mentor.domain}</p>
-              <h3 class="text-2xl text-primary italic mt-2">${mentor.name}</h3>
+              <h3 class="text-2xl text-primary mt-2">${mentor.name}</h3>
               <p class="text-sm text-gray-500 mt-2">${mentor.bio || ''}</p>
               <p class="text-xs text-gray-400 mt-2">Email: ${mentor.email}</p>
               <p class="text-xs text-gray-400 mt-1">Experience: ${mentor.experience_years} yrs</p>
@@ -1539,7 +1539,7 @@ async function initAdminUsersPage() {
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${user.role}</p>
-              <h3 class="text-2xl text-primary italic mt-2">${user.name}</h3>
+              <h3 class="text-2xl text-primary mt-2">${user.name}</h3>
               <p class="text-sm text-gray-500 mt-2">${user.email}</p>
               <p class="text-xs text-gray-400 mt-1">Created: ${new Date(user.created_at).toLocaleDateString()}</p>
               <p class="text-xs text-gray-400 mt-1">Last login: ${new Date(user.last_login).toLocaleDateString()}</p>
@@ -1880,7 +1880,7 @@ async function initPrefectDashboardPage() {
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${req.status}</p>
-              <h3 class="text-2xl text-primary italic mt-2">${req.counterpart_name}</h3>
+              <h3 class="text-2xl text-primary mt-2">${req.counterpart_name}</h3>
               <p class="text-sm text-gray-500 mt-2">${req.message}</p>
               ${req.counterpart_email ? `<p class="text-xs text-gray-400 mt-2">Email: ${req.counterpart_email}</p>` : ''}
             </div>
@@ -1921,7 +1921,7 @@ async function initPrefectDashboardPage() {
         ? accepted.map((req) => `
           <div class="border border-warm-gray bg-white p-6">
             <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Accepted</p>
-            <h3 class="text-2xl text-primary italic mt-2">${req.counterpart_name}</h3>
+            <h3 class="text-2xl text-primary mt-2">${req.counterpart_name}</h3>
             <p class="text-sm text-gray-500 mt-2">${req.message || ''}</p>
             ${req.counterpart_email ? `<p class="text-xs text-gray-400 mt-2">Email: ${req.counterpart_email}</p>` : ''}
           </div>

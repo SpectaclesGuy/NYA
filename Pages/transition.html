@@ -4,6 +4,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>NYA Transition</title>
 <link rel="icon" type="image/png" href="/assets/logo.png"/>
+<link rel="preload" as="video" href="/assets/animation1.mp4" type="video/mp4"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="/pages/nya.js?v=2" defer=""></script>
 <style>
@@ -35,6 +36,7 @@
             width: 510px;
             max-width: 65vw;
             overflow: hidden;
+            background: #ffffff;
         }
         video {
             width: 100%;
@@ -49,7 +51,7 @@
 <body>
 <div class="transition-wrap">
 <div class="video-frame">
-<video id="transition-video" autoplay muted playsinline>
+<video id="transition-video" autoplay muted playsinline preload="auto" poster="/assets/nya_logo_nobg.png">
 <source src="/assets/animation1.mp4" type="video/mp4"/>
 </video>
 </div>
@@ -59,7 +61,7 @@
         const params = new URLSearchParams(window.location.search);
         const target = params.get('target') || '/dashboard';
         const video = document.getElementById('transition-video');
-        const minDurationMs = 8000;
+        const minDurationMs = 3000;
         const startedAt = Date.now();
         let navigated = false;
         const go = () => {

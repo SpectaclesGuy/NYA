@@ -265,19 +265,28 @@ def create_app() -> FastAPI:
         if animation_path.exists():
             @app.get("/assets/animation.mp4")
             async def animation_asset():
-                return FileResponse(str(animation_path))
+                return FileResponse(
+                    str(animation_path),
+                    headers={"Cache-Control": "public, max-age=31536000, immutable"},
+                )
 
-        animation_one_path = root_dir / "animation1.mp4"
+        animation_one_path = root_dir / "animation1.reencoded.mp4"
         if animation_one_path.exists():
             @app.get("/assets/animation1.mp4")
             async def animation_one_asset():
-                return FileResponse(str(animation_one_path))
+                return FileResponse(
+                    str(animation_one_path),
+                    headers={"Cache-Control": "public, max-age=31536000, immutable"},
+                )
 
         animation_nobg_path = root_dir / "nya_animation_nobg.mp4"
         if animation_nobg_path.exists():
             @app.get("/assets/nya_animation_nobg.mp4")
             async def animation_nobg_asset():
-                return FileResponse(str(animation_nobg_path))
+                return FileResponse(
+                    str(animation_nobg_path),
+                    headers={"Cache-Control": "public, max-age=31536000, immutable"},
+                )
 
         logo_nobg_path = root_dir / "nya_logo_nobg.png"
         if logo_nobg_path.exists():

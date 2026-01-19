@@ -4,6 +4,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>NYA</title>
 <link rel="icon" type="image/png" href="/assets/logo.png"/>
+<link rel="preload" as="video" href="/assets/animation1.mp4" type="video/mp4"/>
+<link rel="prefetch" href="/assets/animation1.mp4" as="video" type="video/mp4"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -110,5 +112,19 @@
 <div class="fixed inset-0 -z-10 h-full w-full pointer-events-none">
 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(0,27,61,0.03)_0%,transparent_70%)]"></div>
 </div>
+<script>
+        const preloadAnimation = () => {
+            const url = "/assets/animation1.mp4";
+            const video = document.createElement("video");
+            video.preload = "auto";
+            video.src = url;
+            video.load();
+        };
+        if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(preloadAnimation, { timeout: 1500 });
+        } else {
+            window.setTimeout(preloadAnimation, 400);
+        }
+    </script>
 
 </body></html>
