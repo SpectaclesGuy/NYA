@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Open Hackathons | NYA</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/pages/nya.js?v=2" defer></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1F2A36",
+              "warm-gray": "#F1EEE8",
+              "navy-academic": "#1F2A36",
+              charcoal: "#333333",
+              "border-sep": "#E0DBD2",
+              "accent-gold": "#C7A35A",
+              parchment: "#FCFAF7",
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+              serif: ["Montserrat", "serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      body {
+        @apply bg-parchment text-primary;
+        -webkit-font-smoothing: antialiased;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 20;
+      }
+      .hero-sheen {
+        background: radial-gradient(
+            900px 500px at 10% -30%,
+            rgba(199, 163, 90, 0.2),
+            transparent 60%
+          ),
+          radial-gradient(
+            800px 500px at 90% -20%,
+            rgba(31, 42, 54, 0.08),
+            transparent 55%
+          );
+      }
+      .hack-card {
+        @apply bg-white border border-border-sep shadow-[0_10px_30px_rgba(31,42,54,0.06)] transition-transform duration-300;
+      }
+      .hack-card:hover {
+        transform: translateY(-4px);
+      }
+      .pill {
+        @apply text-[10px] uppercase tracking-[0.3em] font-semibold border border-border-sep px-3 py-1;
+      }
+      .detail-row {
+        @apply flex items-center gap-2 text-xs text-charcoal/70;
+      }
+      .detail-row .material-symbols-outlined {
+        @apply text-base text-charcoal/40;
+      }
+      .badge {
+        @apply text-[10px] uppercase tracking-[0.2em] font-bold bg-warm-gray text-charcoal/70 px-3 py-1;
+      }
+    </style>
+    <link href="/pages/nya.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen">
+    <header class="sticky top-0 z-50 bg-white border-b border-warm-gray">
+      <div class="max-w-[1400px] mx-auto px-8 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-16">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center">
+              <img
+                alt="NYA logo"
+                class="h-10 w-auto object-contain"
+                src="/assets/nya_logo.png"
+              />
+            </div>
+            <h1 class="text-sm font-semibold tracking-[0.2em] uppercase hidden md:block">
+              NYA Community
+            </h1>
+          </div>
+          <nav class="hidden md:flex items-center gap-10">
+            <a
+              class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
+              href="/dashboard"
+              >Discover</a
+            >
+            <a
+              class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
+              href="/profile/setup"
+              >Update Profile</a
+            >
+            <a
+              class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
+              href="/mentors"
+              >Prefects</a
+            >
+            <a
+              class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
+              href="/requests"
+              >My Team</a
+            >
+            <a
+              id="mentor-nav"
+              class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
+              href="/mentor/dashboard"
+              >Prefect Dashboard</a
+            >
+            <a
+              id="admin-nav"
+              class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
+              href="/admin/users"
+              >Admin</a
+            >
+          </nav>
+        </div>
+        <div class="flex items-center gap-6">
+          <button
+            id="logout-button"
+            class="hidden sm:inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 hover:text-primary transition-colors"
+          >
+            <span class="material-symbols-outlined text-[16px]">logout</span>
+            Logout
+          </button>
+          <div class="h-6 w-[1px] bg-warm-gray"></div>
+          <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+              <p class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">
+                Collaborator
+              </p>
+              <span id="nav-user-name" class="text-xs font-medium">Member</span>
+            </div>
+            <a
+              id="nav-profile-link"
+              class="w-10 h-10 rounded-full bg-cover bg-center border border-warm-gray"
+              style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXMAuFlpfGLb8YpJibsxtzbW83UZ6AareCHOsAxn3Nf94v-Nz39G_zgXq-K9q-IOgNC-XRxVBc2u0mc8wDa1O4aBFq0gysh8JdizlaWNWeUjtlUdSp1wbxB92BVSunOEYWOvQvPcdB_Ze_0LrVIh9NxR1-vyYotaH4MMbA8_8ZlfZOPRIjW3GsnLyJUVg7HQ_UhlQ7-eieV8mDRAmWLuQVbDb0UjADjJRw2fqW-2FIDDOX2NZEBF7aGVzk3CmAr5GeiGGCicRaQMk");'
+              href="/profile"
+              aria-label="View profile"
+            ></a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="max-w-[1200px] mx-auto px-8 py-16">
+      <section class="hero-sheen rounded-2xl border border-border-sep px-10 py-12 mb-12">
+        <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-10">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-charcoal/40">
+              Opportunity Board
+            </p>
+            <h2 class="text-5xl font-serif text-navy-academic mt-4">
+              Open Hackathons Snapshot
+            </h2>
+            <p class="text-lg text-charcoal/60 font-light mt-4 max-w-2xl leading-relaxed">
+              A curated, offline snapshot of open student hackathons from Unstop
+              (technology domain). This page is static and does not connect to the
+              live website.
+            </p>
+          </div>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-xl text-accent-gold"
+                >event</span
+              >
+              <p class="text-sm text-charcoal/70">Updated manually for prototype use.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <span class="pill">Students</span>
+              <span class="pill">Open</span>
+              <span class="pill">Tech Domain</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="flex items-center justify-between mb-8">
+        <div>
+          <h3 class="text-2xl font-semibold text-navy-academic">Featured Open Calls</h3>
+          <p class="text-sm text-charcoal/60 mt-2">
+            Explore active hackathons and align with teams before deadlines.
+          </p>
+        </div>
+        <div class="hidden md:flex items-center gap-3 text-[11px] uppercase tracking-[0.3em] font-bold text-charcoal/40">
+          <span>Cards</span>
+          <span class="w-12 h-[1px] bg-border-sep"></span>
+          <span id="hackathon-count">0 entries</span>
+        </div>
+      </section>
+      <div id="hackathon-grid" class="grid gap-6 md:grid-cols-2"></div>
+    </main>
+    <footer class="px-12 py-12 border-t border-gray-100">
+      <div
+        class="flex flex-col md:flex-row justify-between items-center text-[9px] font-bold uppercase tracking-[0.4em] text-gray-400 gap-4"
+      >
+        <div class="flex gap-12">
+          <span>NYA Opportunity Desk</span>
+        </div>
+        <div class="flex gap-8">
+          <span>Offline Snapshot</span>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const hackathons = [
+        {
+          title: "Nexus Innovation Sprint 2024",
+          organizer: "NIT Kurukshetra Innovation Cell",
+          mode: "Hybrid",
+          location: "Kurukshetra, IN",
+          prize: "INR 2,50,000",
+          deadline: "Sep 28, 2024",
+          window: "Oct 4 - Oct 6, 2024",
+          teamSize: "2 - 5",
+          tags: ["AI/ML", "IoT", "Campus Tech"],
+        },
+        {
+          title: "GreenStack Sustainability Hack",
+          organizer: "IIT Bombay E-Cell",
+          mode: "Offline",
+          location: "Mumbai, IN",
+          prize: "INR 1,80,000",
+          deadline: "Oct 2, 2024",
+          window: "Oct 12 - Oct 13, 2024",
+          teamSize: "3 - 6",
+          tags: ["Climate", "Circular Economy", "Data"],
+        },
+        {
+          title: "FinCraft Digital Challenge",
+          organizer: "BITS Pilani FinTech Club",
+          mode: "Online",
+          location: "Remote",
+          prize: "INR 3,00,000",
+          deadline: "Sep 25, 2024",
+          window: "Oct 1 - Oct 3, 2024",
+          teamSize: "1 - 4",
+          tags: ["FinTech", "Risk", "Analytics"],
+        },
+        {
+          title: "HealthGrid Hackathon",
+          organizer: "AIIMS Innovation Hub",
+          mode: "Hybrid",
+          location: "New Delhi, IN",
+          prize: "INR 2,20,000",
+          deadline: "Oct 5, 2024",
+          window: "Oct 19 - Oct 20, 2024",
+          teamSize: "2 - 6",
+          tags: ["HealthTech", "Wearables", "UX"],
+        },
+        {
+          title: "CodeWave Student Jam",
+          organizer: "VIT Chennai Student Council",
+          mode: "Online",
+          location: "Remote",
+          prize: "INR 1,20,000",
+          deadline: "Sep 22, 2024",
+          window: "Sep 28 - Sep 29, 2024",
+          teamSize: "2 - 4",
+          tags: ["Web", "Cloud", "Open Source"],
+        },
+        {
+          title: "AgroTech Frontier Build",
+          organizer: "Punjab Agri University Incubator",
+          mode: "Offline",
+          location: "Ludhiana, IN",
+          prize: "INR 1,60,000",
+          deadline: "Oct 1, 2024",
+          window: "Oct 14 - Oct 15, 2024",
+          teamSize: "3 - 5",
+          tags: ["AgriTech", "Sensors", "Supply Chain"],
+        },
+        {
+          title: "CyberShield Capture Hack",
+          organizer: "SRM Cyber Society",
+          mode: "Online",
+          location: "Remote",
+          prize: "INR 2,00,000",
+          deadline: "Sep 29, 2024",
+          window: "Oct 5 - Oct 7, 2024",
+          teamSize: "1 - 3",
+          tags: ["Cybersecurity", "CTF", "Forensics"],
+        },
+        {
+          title: "Urban Mobility Lab",
+          organizer: "IIT Madras Center for Transportation",
+          mode: "Hybrid",
+          location: "Chennai, IN",
+          prize: "INR 2,75,000",
+          deadline: "Oct 3, 2024",
+          window: "Oct 18 - Oct 20, 2024",
+          teamSize: "2 - 5",
+          tags: ["Smart City", "Maps", "Optimization"],
+        },
+      ];
+
+      const grid = document.getElementById("hackathon-grid");
+      const count = document.getElementById("hackathon-count");
+
+      const cardTemplate = (hackathon) => `
+        <article class="hack-card rounded-2xl p-6 flex flex-col gap-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/40">
+                ${hackathon.organizer}
+              </p>
+              <h4 class="text-xl font-semibold text-navy-academic mt-3">
+                ${hackathon.title}
+              </h4>
+            </div>
+            <span class="badge">${hackathon.mode}</span>
+          </div>
+          <div class="grid gap-2">
+            <div class="detail-row">
+              <span class="material-symbols-outlined">location_on</span>
+              <span>${hackathon.location}</span>
+            </div>
+            <div class="detail-row">
+              <span class="material-symbols-outlined">group</span>
+              <span>Team size: ${hackathon.teamSize}</span>
+            </div>
+            <div class="detail-row">
+              <span class="material-symbols-outlined">calendar_month</span>
+              <span>${hackathon.window}</span>
+            </div>
+            <div class="detail-row">
+              <span class="material-symbols-outlined">flag</span>
+              <span>Registration closes: ${hackathon.deadline}</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${hackathon.tags.map((tag) => `<span class="pill">${tag}</span>`).join("")}
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-border-sep">
+            <p class="text-sm font-semibold text-navy-academic">${hackathon.prize}</p>
+            <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-charcoal/40">
+              Prize Pool
+            </span>
+          </div>
+        </article>
+      `;
+
+      grid.innerHTML = hackathons.map(cardTemplate).join("");
+      count.textContent = `${hackathons.length} entries`;
+    </script>
+  </body>
+</html>
