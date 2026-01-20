@@ -83,6 +83,8 @@ def create_app() -> FastAPI:
             user_id = user.get("id")
             if not user_id or not ObjectId.is_valid(user_id):
                 return RedirectResponse(url="/authentication")
+            if not user.get("role_selected", False):
+                return RedirectResponse(url="/onboarding/role")
             object_id = ObjectId(user_id)
             if user.get("role") == "MENTOR":
                 doc = await db.mentor_profiles.find_one({"user_id": object_id})

@@ -32,7 +32,7 @@ async def get_my_mentor_profile(current_user=Depends(get_current_user), db=Depen
 @router.post("/me", response_model=MentorMeResponse)
 async def upsert_my_mentor_profile(
     payload: MentorUpsertRequest,
-    current_user=Depends(require_onboarding_complete),
+    current_user=Depends(get_current_user),
     db=Depends(get_db),
 ):
     if current_user.get("role") != "MENTOR":

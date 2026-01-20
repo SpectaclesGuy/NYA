@@ -229,6 +229,17 @@ async function initProfileSetupPage() {
     const requiredSkills = requiredSkillsInput?.value
       ? requiredSkillsInput.value.split(',').map((skill) => skill.trim()).filter(Boolean)
       : [];
+    if (!skills.length || !requiredSkills.length) {
+      if (status) {
+        status.textContent = 'Please add at least one skill and one skill you need.';
+      }
+      if (!skills.length && skillsInput) {
+        skillsInput.focus();
+      } else if (!requiredSkills.length && requiredSkillsInput) {
+        requiredSkillsInput.focus();
+      }
+      return;
+    }
     const links = linksInput?.value
       ? linksInput.value.split(',').map((link) => link.trim()).filter(Boolean)
       : [];
@@ -1508,6 +1519,7 @@ async function initAdminUsersPage() {
   const container = document.getElementById('admin-user-list');
   const status = document.getElementById('admin-user-status');
   const search = document.getElementById('admin-user-search');
+  const totalCount = document.getElementById('admin-user-count');
   if (!container) {
     return;
   }
@@ -1539,13 +1551,18 @@ async function initAdminUsersPage() {
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${user.role}</p>
-              <h3 class="text-2xl text-primary mt-2">${user.name}</h3>
+              ${user.role !== 'ADMIN'
+                ? `<a class="text-2xl text-primary mt-2 inline-block hover:opacity-80 transition-opacity" href="/profile?user_id=${user.id}">${user.name}</a>`
+                : `<h3 class="text-2xl text-primary mt-2">${user.name}</h3>`}
               <p class="text-sm text-gray-500 mt-2">${user.email}</p>
               <p class="text-xs text-gray-400 mt-1">Created: ${new Date(user.created_at).toLocaleDateString()}</p>
               <p class="text-xs text-gray-400 mt-1">Last login: ${new Date(user.last_login).toLocaleDateString()}</p>
               <p class="text-xs text-gray-400 mt-1">Blocked: ${user.blocked ? 'Yes' : 'No'}</p>
             </div>
             <div class="flex gap-3 flex-wrap">
+              ${user.role !== 'ADMIN'
+                ? `<a class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" href="/profile?user_id=${user.id}">View Profile</a>`
+                : ''}
               ${user.role === 'ADMIN'
                 ? '<button class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="remove-admin">Remove Admin</button>'
                 : '<button class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="make-admin">Make Admin</button>'}
@@ -1567,6 +1584,7 @@ async function initAdminUsersPage() {
         if (!id) return;
         await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'make_admin' }) });
         allUsers = await load();
+        setTotalCount(allUsers.length);
         render(allUsers);
       });
     });
@@ -1577,6 +1595,7 @@ async function initAdminUsersPage() {
         if (!id) return;
         await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'remove_admin' }) });
         allUsers = await load();
+        setTotalCount(allUsers.length);
         render(allUsers);
       });
     });
@@ -1587,6 +1606,7 @@ async function initAdminUsersPage() {
         if (!id) return;
         await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'block' }) });
         allUsers = await load();
+        setTotalCount(allUsers.length);
         render(allUsers);
       });
     });
@@ -1597,6 +1617,7 @@ async function initAdminUsersPage() {
         if (!id) return;
         await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'unblock' }) });
         allUsers = await load();
+        setTotalCount(allUsers.length);
         render(allUsers);
       });
     });
@@ -1611,9 +1632,16 @@ async function initAdminUsersPage() {
         }
         await apiFetch(`/api/admin/users/${id}`, { method: 'POST', body: JSON.stringify({ action: 'reset_profile' }) });
         allUsers = await load();
+        setTotalCount(allUsers.length);
         render(allUsers);
       });
     });
+  };
+
+  const setTotalCount = (count) => {
+    if (totalCount) {
+      totalCount.textContent = `Total users: ${count}`;
+    }
   };
 
   const load = async () => {
@@ -1624,6 +1652,7 @@ async function initAdminUsersPage() {
   let allUsers = [];
   try {
     allUsers = await load();
+    setTotalCount(allUsers.length);
     render(allUsers);
     if (search) {
       search.addEventListener('input', () => {

@@ -14,77 +14,29 @@ sys.path.append(str(ROOT))
 from app.core.config import settings
 
 
-SEED_TARGET = 100
+SEED_TARGET = 1
 RANDOM_SEED = 42
 
 BASE_USERS = [
-    {"name": "Mayank Tyagi", "email": "mtyagi_be22@thapar.edu", "role": "ADMIN"},
-    {"name": "Aarav Singh", "email": "aarav@thapar.edu", "role": "USER"},
-    {"name": "Riya Sharma", "email": "riya@thapar.edu", "role": "USER"},
-    {"name": "Ishaan Verma", "email": "ishaan@thapar.edu", "role": "USER"},
-    {"name": "Dr. Meera Nair", "email": "meera@thapar.edu", "role": "MENTOR"},
-    {"name": "Prof. Karan Malik", "email": "karan@thapar.edu", "role": "MENTOR"},
-    {"name": "Mayank Admin", "email": "mtyagi2002@gmail.com", "role": "ADMIN"},
+    {"name": "Mayank Tyagi", "email": "mtyagi_be22@thapar.edu", "role": "MENTOR"},
 ]
 
-BASE_CAPSTONE_PROFILES = {
-    "mtyagi_be22@thapar.edu": {
-        "skills": ["Python", "FastAPI", "MongoDB", "UX"],
-        "required_skills": ["React", "UI/UX", "Design"],
-        "links": ["https://github.com", "https://linkedin.com"],
-        "looking_for": "TEAM",
-        "mentor_assigned": False,
-        "bio": "Building a capstone platform for better team discovery.",
-        "availability": "Evenings, 6-8 hrs/week",
-    },
-    "aarav@thapar.edu": {
-        "skills": ["React", "UI/UX", "Prototyping"],
-        "required_skills": ["Backend", "APIs", "Data"],
-        "links": ["https://portfolio.com"],
-        "looking_for": "MEMBER",
-        "mentor_assigned": False,
-        "bio": "Interested in product design and accessibility.",
-        "availability": "Weekends",
-    },
-    "riya@thapar.edu": {
-        "skills": ["Data Science", "NLP", "Python"],
-        "required_skills": ["IoT", "Sensors"],
-        "links": ["https://linkedin.com"],
-        "looking_for": "TEAM",
-        "mentor_assigned": True,
-        "bio": "Working on a smart campus assistant.",
-        "availability": "Mornings",
-    },
-    "ishaan@thapar.edu": {
-        "skills": ["IoT", "Embedded", "C++", "Sensors"],
-        "required_skills": ["ML", "Dashboard"],
-        "links": ["https://github.com"],
-        "looking_for": "MEMBER",
-        "mentor_assigned": False,
-        "bio": "Building low-power sensing networks.",
-        "availability": "Late nights",
-    },
-}
+BASE_CAPSTONE_PROFILES = {}
 
 BASE_MENTOR_PROFILES = {
-    "meera@thapar.edu": {
-        "domain": "AI",
-        "experience_years": 12,
-        "expertise": ["NLP", "Ethics", "ML Systems"],
-        "links": ["https://linkedin.com", "https://scholar.google.com"],
-        "bio": "Guiding teams building responsible AI projects.",
-        "availability": "Tue/Thu afternoons",
+    "mtyagi_be22@thapar.edu": {
+        "domain": "Python, FastAPI, MongoDB, UX, n8n, GenAI, Diffusion, C/C++",
+        "experience_years": 1,
+        "expertise": ["Python", "FastAPI", "MongoDB", "UX", "n8n", "GenAI", "Diffusion", "C/C++"],
+        "links": [
+            "https://www.linkedin.com/in/mayank-tyagi-599703326/",
+            "https://github.com/SpectaclesGuy",
+        ],
+        "bio": "Not waiting for my Hogwarts letter.",
+        "availability": "I have no idea",
         "approved_by_admin": True,
     },
-    "karan@thapar.edu": {
-        "domain": "Fintech",
-        "experience_years": 15,
-        "expertise": ["Payments", "Risk", "Security"],
-        "links": ["https://linkedin.com"],
-        "bio": "Mentoring capstone teams in fintech and security.",
-        "availability": "Weekends",
-        "approved_by_admin": True,
-    },
+    
 }
 
 FIRST_NAMES = [
@@ -187,32 +139,7 @@ async def upsert_mentor(db, user_id: ObjectId, profile: dict) -> None:
 
 
 async def seed_requests(db, user_ids: dict[str, ObjectId]) -> None:
-    pairs = [
-        ("mtyagi_be22@thapar.edu", "aarav@thapar.edu", "CAPSTONE", "Looking to form a team focused on UX + backend."),
-        ("riya@thapar.edu", "ishaan@thapar.edu", "CAPSTONE", "Need hardware support for our campus assistant."),
-        ("mtyagi_be22@thapar.edu", "meera@thapar.edu", "MENTORSHIP", "Requesting mentorship for backend architecture."),
-    ]
-    now = datetime.now(tz=timezone.utc)
-    for from_email, to_email, req_type, message in pairs:
-        existing = await db.requests.find_one(
-            {
-                "from_user_id": user_ids[from_email],
-                "to_user_id": user_ids[to_email],
-                "status": "PENDING",
-            }
-        )
-        if existing:
-            continue
-        await db.requests.insert_one(
-            {
-                "from_user_id": user_ids[from_email],
-                "to_user_id": user_ids[to_email],
-                "type": req_type,
-                "message": message,
-                "status": "PENDING",
-                "created_at": now,
-            }
-        )
+    return
 
 
 async def main() -> None:

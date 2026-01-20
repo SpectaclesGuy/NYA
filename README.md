@@ -50,3 +50,6 @@ uvicorn app.main:app --reload
 - Auth, onboarding, and role access are enforced server-side.
 - SMTP is optional and controlled via environment variables.
 - Static assets are served from `/assets`.
+
+for logs
+docker compose logs -f app
