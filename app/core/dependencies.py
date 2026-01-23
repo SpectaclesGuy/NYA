@@ -11,6 +11,7 @@ from app.core.security import ACCESS_COOKIE
 from app.db.client import get_database
 from app.services.user_service import UserService
 from app.utils.errors import AppError
+from app.utils.profile import is_capstone_profile_complete
 
 
 async def get_db():
@@ -67,6 +68,6 @@ async def require_onboarding_complete(current_user=Depends(get_current_user), db
         return current_user
 
     doc = await db.capstone_profiles.find_one({"user_id": object_id})
-    if not doc:
+    if not is_capstone_profile_complete(doc):
         raise AppError(403, "profile_incomplete", "Complete your profile")
     return current_user

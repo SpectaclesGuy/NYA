@@ -243,13 +243,42 @@ async function initProfileSetupPage() {
     const links = linksInput?.value
       ? linksInput.value.split(',').map((link) => link.trim()).filter(Boolean)
       : [];
+    const bioValue = bioInput?.value?.trim() || '';
+    const availabilityValue = availabilityInput?.value?.trim() || '';
+    if (!links.length) {
+      if (status) {
+        status.textContent = 'Please add at least one link.';
+      }
+      if (linksInput) {
+        linksInput.focus();
+      }
+      return;
+    }
+    if (!bioValue) {
+      if (status) {
+        status.textContent = 'Please add a short bio.';
+      }
+      if (bioInput) {
+        bioInput.focus();
+      }
+      return;
+    }
+    if (!availabilityValue) {
+      if (status) {
+        status.textContent = 'Please share your availability.';
+      }
+      if (availabilityInput) {
+        availabilityInput.focus();
+      }
+      return;
+    }
     const payload = {
       skills,
       required_skills: requiredSkills,
       links,
       looking_for: lookingFor,
-      bio: bioInput?.value || '',
-      availability: availabilityInput?.value || '',
+      bio: bioValue,
+      availability: availabilityValue,
     };
   if (status) {
     status.textContent = 'Saving profile...';

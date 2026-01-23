@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field
 
 
 class ProfileUpsertRequest(BaseModel):
-    skills: list[str] = Field(default_factory=list)
-    required_skills: list[str] = Field(default_factory=list)
-    links: list[str] = Field(default_factory=list)
+    skills: list[str] = Field(min_items=1)
+    required_skills: list[str] = Field(min_items=1)
+    links: list[str] = Field(min_items=1)
     looking_for: Literal["TEAM", "MEMBER"]
-    bio: str = Field(default="", max_length=1000)
-    availability: str = Field(default="")
+    bio: str = Field(max_length=1000, min_length=1)
+    availability: str = Field(min_length=1)
 
 
 class ProfileMeResponse(BaseModel):

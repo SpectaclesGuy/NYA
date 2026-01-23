@@ -23,6 +23,7 @@ from app.routes.profiles import router as profiles_router
 from app.routes.requests import router as requests_router
 from app.routes.users import router as users_router
 from app.utils.errors import AppError, error_response
+from app.utils.profile import is_capstone_profile_complete
 
 
 def create_app() -> FastAPI:
@@ -94,7 +95,7 @@ def create_app() -> FastAPI:
                     return RedirectResponse(url="/mentor/pending")
                 return None
             doc = await db.capstone_profiles.find_one({"user_id": object_id})
-            if not doc:
+            if not is_capstone_profile_complete(doc):
                 return RedirectResponse(url="/profile/setup")
             return None
 

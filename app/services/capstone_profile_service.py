@@ -39,6 +39,10 @@ class CapstoneProfileService:
         cleaned_skills = [skill.strip() for skill in skills if skill.strip()]
         cleaned_required = [skill.strip() for skill in required_skills if skill.strip()]
         cleaned_links = [link.strip() for link in links if link.strip()]
+        bio = bio.strip()
+        availability = availability.strip()
+        if not cleaned_skills or not cleaned_required or not cleaned_links or not bio or not availability:
+            raise AppError(400, "profile_incomplete", "All profile fields are required.")
         await self.db.capstone_profiles.update_one(
             {"user_id": ObjectId(user_id)},
             {

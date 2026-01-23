@@ -53,3 +53,4 @@ uvicorn app.main:app --reload
 
 for logs
 docker compose logs -f app
+sudo ufw deny from 79.124.40.174
