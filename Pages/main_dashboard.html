@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Dashboard</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/pages/nya.js?v=2" defer></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1F2A36",
+              parchment: "#F7F3EC",
+              "warm-gray": "#E3DED6",
+              "background-light": "#F7F6F3",
+              "accent-gold": "#C7A35A",
+              ink: "#141414",
+              sepia: "#EFE6D9",
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+              serif: ["Montserrat", "serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-background-light text-ink antialiased;
+        }
+      }
+      .paper-texture {
+        background-image: linear-gradient(120deg, rgba(31, 42, 54, 0.03), rgba(199, 163, 90, 0.04)),
+          repeating-linear-gradient(
+            0deg,
+            rgba(31, 42, 54, 0.02),
+            rgba(31, 42, 54, 0.02) 1px,
+            transparent 1px,
+            transparent 6px
+          );
+      }
+      .masthead-title {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+      }
+      .headline-title {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        transition: color 200ms ease;
+      }
+      .drop-cap:first-letter {
+        float: left;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        font-size: 3.5rem;
+        line-height: 0.9;
+        padding-right: 0.3rem;
+        padding-top: 0.2rem;
+      }
+      .headline-link {
+        position: relative;
+      }
+      .headline-link::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 100%;
+        height: 1px;
+        background: rgba(31, 42, 54, 0.35);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 220ms ease;
+      }
+      .headline-link:hover::after,
+      .headline-link:focus-visible::after {
+        transform: scaleX(1);
+      }
+      .headline-link:hover .headline-title,
+      .headline-link:focus-visible .headline-title {
+        color: #c7a35a;
+      }
+      .moving-photo {
+        background-image: linear-gradient(120deg, rgba(31, 42, 54, 0.15), rgba(199, 163, 90, 0.25)),
+          linear-gradient(45deg, rgba(255, 255, 255, 0.15), rgba(31, 42, 54, 0.2));
+        background-size: 180% 180%;
+        animation: photoDrift 10s ease-in-out infinite;
+      }
+      @keyframes photoDrift {
+        0% {
+          background-position: 0% 20%;
+        }
+        50% {
+          background-position: 100% 80%;
+        }
+        100% {
+          background-position: 0% 20%;
+        }
+      }
+      .ticker-track {
+        display: flex;
+        width: max-content;
+        animation: ticker 18s linear infinite;
+      }
+      .ticker-row {
+        @apply flex items-center gap-10 whitespace-nowrap;
+        padding-right: 2.5rem;
+      }
+      .ticker-item {
+        @apply shrink-0;
+      }
+      @keyframes ticker {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+      .story-swap {
+        animation: storySwap 360ms ease;
+      }
+      @keyframes storySwap {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+    <link href="/pages/nya.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen">
+    <main class="min-h-screen paper-texture">
+      <section class="max-w-[1200px] mx-auto px-8 py-16">
+        <div class="text-center">
+          <p class="text-[10px] uppercase tracking-[0.35em] text-gray-500">NYA Community Gazette</p>
+          <h2 class="masthead-title text-5xl md:text-6xl text-primary mt-4">The Not Your Average Times</h2>
+          <p class="text-xs uppercase tracking-[0.3em] text-gray-500 mt-4">Issue 01 - Vol 01</p>
+        </div>
+
+        <div class="mt-10 border-y border-primary py-6">
+          <div class="overflow-hidden">
+            <div class="ticker-track items-center text-primary/80">
+              <div class="ticker-row">
+                <a href="/main_dashboard" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Discover Desk</h3>
+                </a>
+                <a href="/requests" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Team Stats</h3>
+                </a>
+                <a href="/main_dashboard" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Projects Showcase</h3>
+                </a>
+                <a href="/profile/setup" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Profile Bureau</h3>
+                </a>
+                <a href="/mentors" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Prefect Oversight</h3>
+                </a>
+                <a href="/hackathons" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Hackathon Logbook</h3>
+                </a>
+              </div>
+              <div class="ticker-row">
+                <a href="/main_dashboard" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Discover Desk</h3>
+                </a>
+                <a href="/requests" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Team Stats</h3>
+                </a>
+                <a href="/main_dashboard" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Projects Showcase</h3>
+                </a>
+                <a href="/profile/setup" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Profile Bureau</h3>
+                </a>
+                <a href="/mentors" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Prefect Oversight</h3>
+                </a>
+                <a href="/hackathons" class="headline-link inline-flex ticker-item">
+                  <h3 class="headline-title text-2xl text-primary whitespace-nowrap">Hackathon Logbook</h3>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div class="lg:col-span-3 space-y-8 border-r border-warm-gray pr-6">
+            <div class="space-y-2">
+              <a href="/dashboard" class="headline-link inline-flex">
+                <h3 class="headline-title text-2xl text-primary">Discover Desk</h3>
+              </a>
+              <p class="text-sm text-gray-600 leading-6">
+                Shortlist collaborators by skill, focus area, and availability.
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a href="/requests" class="headline-link inline-flex">
+                <h3 class="headline-title text-2xl text-primary">Team Stats</h3>
+              </a>
+              <p class="text-sm text-gray-600 leading-6">
+                Show request status and your team members.
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a href="/main_dashboard" class="headline-link inline-flex">
+                <h3 class="headline-title text-2xl text-primary">Projects Showcase</h3>
+              </a>
+              <p class="text-sm text-gray-600 leading-6">
+                Stay tuned for more update.
+              </p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 space-y-6">
+            <div id="lead-stories" class="space-y-6"></div>
+            <div class="flex items-center justify-center gap-4">
+              <button
+                id="story-prev"
+                class="h-10 w-10 border border-warm-gray text-primary hover:text-accent-gold transition-colors"
+                aria-label="Previous story"
+              >
+                &#x2039;
+              </button>
+              <p class="text-xs uppercase tracking-[0.3em] text-gray-500">Lead Stories</p>
+              <button
+                id="story-next"
+                class="h-10 w-10 border border-warm-gray text-primary hover:text-accent-gold transition-colors"
+                aria-label="Next story"
+              >
+                &#x203A;
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-3 space-y-8 border-l border-warm-gray pl-6">
+            <div class="space-y-2">
+              <a href="/profile/setup" class="headline-link inline-flex">
+                <h3 class="headline-title text-2xl text-primary">Profile Bureau</h3>
+              </a>
+              <p class="text-sm text-gray-600 leading-6">
+                Create or Update your profile to access exclusive features.
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a href="/mentors" class="headline-link inline-flex">
+                <h3 class="headline-title text-2xl text-primary">Prefect Oversight</h3>
+              </a>
+              <p class="text-sm text-gray-600 leading-6">
+                Review profiles of Prefects to find the help you need.
+              </p>
+            </div>
+            <div class="space-y-2">
+              <a href="/hackathons" class="headline-link inline-flex">
+                <h3 class="headline-title text-2xl text-primary">Hackathon Logbook</h3>
+              </a>
+              <p class="text-sm text-gray-600 leading-6">
+                Track live hackathon openings and submission windows.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

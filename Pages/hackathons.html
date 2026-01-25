@@ -93,8 +93,7 @@
           <nav class="hidden md:flex items-center gap-10">
             <a
               class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
-              href="/dashboard"
-              >Discover</a
+              href="/main_dashboard">Discover</a
             >
             <a
               class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors"
@@ -163,9 +162,8 @@
               Open Hackathons Snapshot
             </h2>
             <p class="text-lg text-charcoal/60 font-light mt-4 max-w-2xl leading-relaxed">
-              A curated, offline snapshot of open student hackathons from Unstop
-              (technology domain). This page is static and does not connect to the
-              live website.
+              A curated snapshot of open hackathons from Unstop, refreshed via a
+              lightweight scraper. Browse, shortlist, and jump to the source.
             </p>
           </div>
           <div class="flex flex-col gap-4">
@@ -173,7 +171,9 @@
               <span class="material-symbols-outlined text-xl text-accent-gold"
                 >event</span
               >
-              <p class="text-sm text-charcoal/70">Updated manually for prototype use.</p>
+              <p class="text-sm text-charcoal/70">
+                Updated <span id="hackathon-updated">just now</span>.
+              </p>
             </div>
             <div class="flex flex-wrap gap-3">
               <span class="pill">Students</span>
@@ -197,6 +197,25 @@
         </div>
       </section>
       <div id="hackathon-grid" class="grid gap-6 md:grid-cols-2"></div>
+      <div class="mt-10 flex flex-col items-center gap-4">
+        <div class="text-[10px] uppercase tracking-[0.3em] font-bold text-charcoal/40">
+          Page <span id="page-current">1</span> of <span id="page-total">1</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            id="page-prev"
+            class="px-4 py-2 border border-border-sep text-[11px] uppercase tracking-[0.3em] font-bold text-charcoal/60 hover:text-primary transition-colors"
+          >
+            Prev
+          </button>
+          <button
+            id="page-next"
+            class="px-4 py-2 border border-border-sep text-[11px] uppercase tracking-[0.3em] font-bold text-charcoal/60 hover:text-primary transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </main>
     <footer class="px-12 py-12 border-t border-gray-100">
       <div
@@ -206,104 +225,21 @@
           <span>NYA Opportunity Desk</span>
         </div>
         <div class="flex gap-8">
-          <span>Offline Snapshot</span>
+          <span>Live Snapshot</span>
         </div>
       </div>
     </footer>
     <script>
-      const hackathons = [
-        {
-          title: "Nexus Innovation Sprint 2024",
-          organizer: "NIT Kurukshetra Innovation Cell",
-          mode: "Hybrid",
-          location: "Kurukshetra, IN",
-          prize: "INR 2,50,000",
-          deadline: "Sep 28, 2024",
-          window: "Oct 4 - Oct 6, 2024",
-          teamSize: "2 - 5",
-          tags: ["AI/ML", "IoT", "Campus Tech"],
-        },
-        {
-          title: "GreenStack Sustainability Hack",
-          organizer: "IIT Bombay E-Cell",
-          mode: "Offline",
-          location: "Mumbai, IN",
-          prize: "INR 1,80,000",
-          deadline: "Oct 2, 2024",
-          window: "Oct 12 - Oct 13, 2024",
-          teamSize: "3 - 6",
-          tags: ["Climate", "Circular Economy", "Data"],
-        },
-        {
-          title: "FinCraft Digital Challenge",
-          organizer: "BITS Pilani FinTech Club",
-          mode: "Online",
-          location: "Remote",
-          prize: "INR 3,00,000",
-          deadline: "Sep 25, 2024",
-          window: "Oct 1 - Oct 3, 2024",
-          teamSize: "1 - 4",
-          tags: ["FinTech", "Risk", "Analytics"],
-        },
-        {
-          title: "HealthGrid Hackathon",
-          organizer: "AIIMS Innovation Hub",
-          mode: "Hybrid",
-          location: "New Delhi, IN",
-          prize: "INR 2,20,000",
-          deadline: "Oct 5, 2024",
-          window: "Oct 19 - Oct 20, 2024",
-          teamSize: "2 - 6",
-          tags: ["HealthTech", "Wearables", "UX"],
-        },
-        {
-          title: "CodeWave Student Jam",
-          organizer: "VIT Chennai Student Council",
-          mode: "Online",
-          location: "Remote",
-          prize: "INR 1,20,000",
-          deadline: "Sep 22, 2024",
-          window: "Sep 28 - Sep 29, 2024",
-          teamSize: "2 - 4",
-          tags: ["Web", "Cloud", "Open Source"],
-        },
-        {
-          title: "AgroTech Frontier Build",
-          organizer: "Punjab Agri University Incubator",
-          mode: "Offline",
-          location: "Ludhiana, IN",
-          prize: "INR 1,60,000",
-          deadline: "Oct 1, 2024",
-          window: "Oct 14 - Oct 15, 2024",
-          teamSize: "3 - 5",
-          tags: ["AgriTech", "Sensors", "Supply Chain"],
-        },
-        {
-          title: "CyberShield Capture Hack",
-          organizer: "SRM Cyber Society",
-          mode: "Online",
-          location: "Remote",
-          prize: "INR 2,00,000",
-          deadline: "Sep 29, 2024",
-          window: "Oct 5 - Oct 7, 2024",
-          teamSize: "1 - 3",
-          tags: ["Cybersecurity", "CTF", "Forensics"],
-        },
-        {
-          title: "Urban Mobility Lab",
-          organizer: "IIT Madras Center for Transportation",
-          mode: "Hybrid",
-          location: "Chennai, IN",
-          prize: "INR 2,75,000",
-          deadline: "Oct 3, 2024",
-          window: "Oct 18 - Oct 20, 2024",
-          teamSize: "2 - 5",
-          tags: ["Smart City", "Maps", "Optimization"],
-        },
-      ];
-
       const grid = document.getElementById("hackathon-grid");
       const count = document.getElementById("hackathon-count");
+      const updatedLabel = document.getElementById("hackathon-updated");
+      const pageCurrent = document.getElementById("page-current");
+      const pageTotal = document.getElementById("page-total");
+      const prevButton = document.getElementById("page-prev");
+      const nextButton = document.getElementById("page-next");
+      const PAGE_SIZE = 10;
+      let currentPage = 1;
+      let allItems = [];
 
       const cardTemplate = (hackathon) => `
         <article class="hack-card rounded-2xl p-6 flex flex-col gap-5">
@@ -318,38 +254,91 @@
             </div>
             <span class="badge">${hackathon.mode}</span>
           </div>
+          ${
+            hackathon.logo
+              ? `<img src="${hackathon.logo}" alt="${hackathon.organizer} logo" class="h-10 w-10 object-contain" />`
+              : ""
+          }
           <div class="grid gap-2">
             <div class="detail-row">
               <span class="material-symbols-outlined">location_on</span>
-              <span>${hackathon.location}</span>
+              <span>${hackathon.location || "Location TBA"}</span>
             </div>
             <div class="detail-row">
               <span class="material-symbols-outlined">group</span>
-              <span>Team size: ${hackathon.teamSize}</span>
+              <span>Team size: ${hackathon.teamSize || "Varies"}</span>
             </div>
             <div class="detail-row">
               <span class="material-symbols-outlined">calendar_month</span>
-              <span>${hackathon.window}</span>
+              <span>${hackathon.window || "Dates to be announced"}</span>
             </div>
             <div class="detail-row">
               <span class="material-symbols-outlined">flag</span>
-              <span>Registration closes: ${hackathon.deadline}</span>
+              <span>Registration closes: ${hackathon.deadline || "TBA"}</span>
             </div>
           </div>
           <div class="flex flex-wrap gap-2">
-            ${hackathon.tags.map((tag) => `<span class="pill">${tag}</span>`).join("")}
+            ${(hackathon.tags || [])
+              .map((tag) => `<span class="pill">${tag}</span>`)
+              .join("")}
           </div>
           <div class="flex items-center justify-between pt-4 border-t border-border-sep">
             <p class="text-sm font-semibold text-navy-academic">${hackathon.prize}</p>
-            <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-charcoal/40">
-              Prize Pool
-            </span>
+            <a
+              href="${hackathon.url || "#"}"
+              target="_blank"
+              rel="noopener"
+              class="text-[10px] uppercase tracking-[0.3em] font-bold text-accent-gold hover:text-primary transition-colors"
+              >View details</a
+            >
           </div>
         </article>
       `;
 
-      grid.innerHTML = hackathons.map(cardTemplate).join("");
-      count.textContent = `${hackathons.length} entries`;
+      const renderPage = () => {
+        const totalPages = Math.max(1, Math.ceil(allItems.length / PAGE_SIZE));
+        currentPage = Math.min(currentPage, totalPages);
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const pageItems = allItems.slice(start, start + PAGE_SIZE);
+        grid.innerHTML = pageItems.map(cardTemplate).join("");
+        count.textContent = `${allItems.length} entries`;
+        pageCurrent.textContent = `${currentPage}`;
+        pageTotal.textContent = `${totalPages}`;
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage === totalPages;
+      };
+
+      const render = (payload) => {
+        allItems = payload.items || [];
+        renderPage();
+        if (updatedLabel && payload.generated_at) {
+          updatedLabel.textContent = new Date(payload.generated_at).toLocaleDateString();
+        }
+      };
+
+      prevButton.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage -= 1;
+          renderPage();
+        }
+      });
+
+      nextButton.addEventListener("click", () => {
+        const totalPages = Math.max(1, Math.ceil(allItems.length / PAGE_SIZE));
+        if (currentPage < totalPages) {
+          currentPage += 1;
+          renderPage();
+        }
+      });
+
+      fetch("/pages/data/hackathons.json")
+        .then((response) => response.json())
+        .then(render)
+        .catch(() => {
+          grid.innerHTML =
+            "<div class=\"text-sm text-charcoal/60\">Hackathon data is unavailable right now. Run the scraper to refresh.</div>";
+        });
     </script>
   </body>
 </html>
+

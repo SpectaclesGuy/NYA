@@ -86,6 +86,8 @@ async function initOnboardingGuard() {
   const publicPaths = [
     '/',
     '/landing',
+    '/transition',
+    '/main_dashboard',
     '/authentication',
     '/onboarding/role',
     '/profile/setup',
@@ -123,7 +125,13 @@ async function initOnboardingGuard() {
 }
 
 async function initGlobalNav() {
-  if (window.location.pathname === '/authentication' || window.location.pathname === '/' || window.location.pathname === '/landing') {
+  if (
+    window.location.pathname === '/authentication'
+    || window.location.pathname === '/'
+    || window.location.pathname === '/landing'
+    || window.location.pathname === '/transition'
+    || window.location.pathname === '/main_dashboard'
+  ) {
     return;
   }
   const nameEl = document.getElementById('nav-user-name');
@@ -174,6 +182,103 @@ async function initGlobalNav() {
     }
   } catch (error) {
     // ignore
+  }
+}
+
+async function initMainDashboardStories() {
+  const container = document.getElementById('lead-stories');
+  const prevButton = document.getElementById('story-prev');
+  const nextButton = document.getElementById('story-next');
+  if (!container) {
+    return;
+  }
+  const fallback = [
+    {
+      title: 'The Big Boy on The Sofa',
+      image: '/assets/yooo.jpeg',
+      description: 'A new wave of capstone leaders are forming circles across the community.',
+      link: '/mentors',
+    },
+    {
+      title: 'Mentor Dispatch',
+      image: '/assets/nya_logo_nobg.png',
+      description: 'Freshly approved prefects are live with focus areas and availability.',
+      link: '/mentor/dashboard',
+    },
+    {
+      title: 'Project Pulse',
+      image: '/assets/nya_logo_nobg.png',
+      description: 'Teams are assembling across product, AI, and design for the next sprint.',
+      link: '/dashboard',
+    },
+    {
+      title: 'Studio Open Calls',
+      image: '/assets/nya_logo_nobg.png',
+      description: 'Track hackathon openings and align with deadlines before you commit.',
+      link: '/hackathons',
+    },
+  ];
+  let stories = fallback.slice();
+  let currentIndex = 0;
+  let rotationTimer = null;
+
+  const render = () => {
+    const current = stories[currentIndex] || stories[0];
+    container.innerHTML = current
+      ? `
+        <div class="story-swap space-y-6">
+        <a href="${current.link || '/mentors'}" class="headline-link inline-flex w-full justify-center">
+          <h3 class="headline-title text-4xl text-primary text-center w-full">${current.title}</h3>
+        </a>
+          <div class="border border-warm-gray aspect-[4/3] overflow-hidden bg-sepia">
+            <img src="${current.image}" alt="${current.title}" class="h-full w-full object-cover" loading="lazy" />
+          </div>
+          <p class="text-sm text-gray-600 leading-7 drop-cap">
+            ${current.description}
+          </p>
+        </div>
+      `
+      : '';
+  };
+
+  const step = (direction) => {
+    const total = stories.length || 1;
+    currentIndex = (currentIndex + direction + total) % total;
+    render();
+  };
+
+  const resetTimer = () => {
+    if (rotationTimer) {
+      window.clearInterval(rotationTimer);
+    }
+    rotationTimer = window.setInterval(() => step(1), 8000);
+  };
+
+  render();
+  resetTimer();
+  try {
+    const data = await apiFetch('/api/stories');
+    if (data?.items?.length) {
+      stories = data.items.slice(0, 4);
+      currentIndex = 0;
+      render();
+      resetTimer();
+    }
+  } catch (error) {
+    // ignore
+  }
+
+  if (prevButton) {
+    prevButton.addEventListener('click', () => {
+      step(-1);
+      resetTimer();
+    });
+  }
+  if (nextButton) {
+    nextButton.addEventListener('click', () => {
+      step(1);
+      resetTimer();
+    });
   }
 }
 
@@ -1801,6 +1906,122 @@ async function initAdminEmailTemplatesPage() {
   }
 }
 
+async function initAdminStoriesPage() {
+  const list = document.getElementById('admin-story-list');
+  if (!list) {
+    return;
+  }
+  const saveButton = document.getElementById('admin-stories-save');
+  const status = document.getElementById('admin-stories-status');
+
+  try {
+    const me = await apiFetch('/api/users/me');
+    if (me.role !== 'ADMIN') {
+      window.location.href = '/dashboard';
+      return;
+    }
+  } catch (error) {
+    window.location.href = '/authentication';
+    return;
+  }
+
+  const escapeHtml = (value) => {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
+
+  const normalize = (items) => {
+    const base = items && items.length ? items.slice(0, 4) : [];
+    while (base.length < 4) {
+      base.push({ title: '', image: '', description: '', link: '' });
+    }
+    return base;
+  };
+
+  const render = (items) => {
+    const stories = normalize(items);
+    list.innerHTML = stories
+      .map(
+        (story, index) => `
+        <div class="border border-warm-gray bg-white p-6" data-story-index="${index}">
+          <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Story ${index + 1}</p>
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+              Title
+              <input class="mt-2 w-full border border-warm-gray px-3 py-2 text-sm bg-white" data-field="title" value="${escapeHtml(story.title)}" />
+            </label>
+            <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+              Image URL
+              <input class="mt-2 w-full border border-warm-gray px-3 py-2 text-sm bg-white" data-field="image" value="${escapeHtml(story.image)}" />
+            </label>
+            <label class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400 md:col-span-2">
+              Redirect Link
+              <input class="mt-2 w-full border border-warm-gray px-3 py-2 text-sm bg-white" data-field="link" value="${escapeHtml(story.link)}" />
+            </label>
+          </div>
+          <label class="mt-4 block text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
+            Description
+            <textarea class="mt-2 w-full min-h-[120px] border border-warm-gray px-3 py-2 text-sm bg-white" data-field="description">${escapeHtml(story.description)}</textarea>
+          </label>
+        </div>
+      `
+      )
+      .join('');
+  };
+
+  const load = async () => {
+    const data = await apiFetch('/api/admin/stories');
+    render(data.items || []);
+  };
+
+  try {
+    await load();
+  } catch (error) {
+    if (status) {
+      status.textContent = error.message || 'Unable to load stories.';
+    }
+  }
+
+  if (saveButton) {
+    saveButton.addEventListener('click', async () => {
+      const cards = Array.from(list.querySelectorAll('[data-story-index]'));
+      const items = cards.map((card) => {
+        const title = card.querySelector('[data-field="title"]')?.value?.trim() || '';
+        const image = card.querySelector('[data-field="image"]')?.value?.trim() || '';
+        const description = card.querySelector('[data-field="description"]')?.value?.trim() || '';
+        const link = card.querySelector('[data-field="link"]')?.value?.trim() || '';
+        return { title, image, description, link };
+      });
+      if (items.some((item) => !item.title || !item.image || !item.description || !item.link)) {
+        if (status) {
+          status.textContent = 'Please fill in title, image, description, and link for all four stories.';
+        }
+        return;
+      }
+      if (status) {
+        status.textContent = 'Saving stories...';
+      }
+      try {
+        await apiFetch('/api/admin/stories', {
+          method: 'PUT',
+          body: JSON.stringify({ items }),
+        });
+        if (status) {
+          status.textContent = 'Stories saved.';
+        }
+      } catch (error) {
+        if (status) {
+          status.textContent = error.message || 'Unable to save stories.';
+        }
+      }
+    });
+  }
+}
+
 async function initPrefectEmailTemplatesPage() {
   const select = document.getElementById('mentor-email-template-select');
   if (!select) {
@@ -2029,6 +2250,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileNav();
   initOnboardingGuard();
   initGlobalNav();
+  initMainDashboardStories();
   initAuthPage();
   initDashboardPage();
   initProfilePage();
@@ -2040,6 +2262,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initAdminPrefectsPage();
   initAdminUsersPage();
   initAdminEmailTemplatesPage();
+  initAdminStoriesPage();
   initPrefectEmailTemplatesPage();
   initPrefectDashboardPage();
   initPrefectPendingPage();

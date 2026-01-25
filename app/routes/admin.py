@@ -13,9 +13,11 @@ from app.schemas.email_template import (
     EmailTemplateSummary,
     EmailTemplateUpdate,
 )
+from app.schemas.story import StoryResponse, StoryUpdateRequest
 from app.services.admin_user_service import AdminUserService
 from app.services.email_template_service import EmailTemplateService
 from app.services.mentor_profile_service import MentorProfileService
+from app.services.story_service import StoryService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -75,3 +77,14 @@ async def preview_email_template(
 ):
     html = EmailTemplateService().render_preview(template_id, payload.content)
     return {"id": template_id, "html": html}
+
+
+@router.get("/stories", response_model=StoryResponse)
+async def list_stories(_admin=Depends(require_admin), db=Depends(get_db)):
+    return await StoryService(db).list_stories()
+
+
+@router.put("/stories", response_model=StoryResponse)
+async def update_stories(payload: StoryUpdateRequest, _admin=Depends(require_admin), db=Depends(get_db)):
+    items = [item.model_dump() for item in payload.items]
+    return await StoryService(db).update_stories(items)

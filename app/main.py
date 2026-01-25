@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bson import ObjectId
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
@@ -21,6 +21,7 @@ from app.routes.config import router as config_router
 from app.routes.mentors import router as mentors_router
 from app.routes.profiles import router as profiles_router
 from app.routes.requests import router as requests_router
+from app.routes.stories import router as stories_router
 from app.routes.users import router as users_router
 from app.utils.errors import AppError, error_response
 from app.utils.profile import is_capstone_profile_complete
@@ -61,11 +62,16 @@ def create_app() -> FastAPI:
     app.include_router(profiles_router, prefix="/api")
     app.include_router(mentors_router, prefix="/api")
     app.include_router(requests_router, prefix="/api")
+    app.include_router(stories_router, prefix="/api")
 
     root_dir = Path(__file__).resolve().parents[1]
     pages_dir = root_dir / "Pages"
     if pages_dir.exists():
         app.mount("/pages", StaticFiles(directory=str(pages_dir), html=True), name="pages")
+
+    assets_dir = root_dir / "assests"
+    if assets_dir.exists():
+        app.mount("/assests", StaticFiles(directory=str(assets_dir)), name="assests")
 
         @app.get("/")
         async def root():
@@ -120,6 +126,10 @@ def create_app() -> FastAPI:
             if redirect:
                 return redirect
             return page("dashboard.html")
+
+        @app.get("/main_dashboard")
+        async def main_dashboard_page():
+            return page("main_dashboard.html")
 
         @app.get("/profile")
         async def profile_page(request: Request, db=Depends(get_db)):
@@ -210,6 +220,17 @@ def create_app() -> FastAPI:
                 return redirect
             return page("mentor_request.html")
 
+        @app.get("/hackathons")
+        async def hackathons_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
+            return page("hackathons.html")
+
         @app.get("/mentor_request")
         async def mentors_request_alias():
             return page("mentor_request.html")
@@ -251,6 +272,10 @@ def create_app() -> FastAPI:
         @app.get("/admin/emails")
         async def admin_emails_page():
             return page("admin_emails.html")
+
+        @app.get("/admin/stories")
+        async def admin_stories_page():
+            return page("admin_stories.html")
 
         logo_path = root_dir / "nya_logo.png"
         if logo_path.exists():
@@ -296,6 +321,18 @@ def create_app() -> FastAPI:
             @app.get("/assets/nya_logo_nobg.png")
             async def logo_nobg_asset():
                 return FileResponse(str(logo_nobg_path))
+
+        yooo_path = root_dir / "yooo.jpeg"
+        if yooo_path.exists():
+            @app.get("/assets/yooo.jpeg")
+            async def yooo_asset():
+                return FileResponse(str(yooo_path))
+
+        yoda_path = root_dir / "yoda.jpeg"
+        if yoda_path.exists():
+            @app.get("/assets/yoda.jpeg")
+            async def yoda_asset():
+                return FileResponse(str(yoda_path))
 
         avatar_path = root_dir / "default_avatar.svg"
         if avatar_path.exists():
@@ -350,6 +387,16 @@ def create_app() -> FastAPI:
             @app.get("/assets/default_avatar_9.svg")
             async def avatar_nine_asset():
                 return FileResponse(str(avatar_nine_path))
+
+        @app.get("/assets/{asset_path:path}")
+        async def asset_fallback(asset_path: str):
+            candidate = root_dir / asset_path
+            if candidate.exists():
+                return FileResponse(str(candidate))
+            assets_candidate = root_dir / "assests" / asset_path
+            if assets_candidate.exists():
+                return FileResponse(str(assets_candidate))
+            raise HTTPException(status_code=404, detail="Asset not found")
 
     @app.on_event("startup")
     async def on_startup():
