@@ -251,7 +251,7 @@ async function initMainDashboardStories() {
     if (rotationTimer) {
       window.clearInterval(rotationTimer);
     }
-    rotationTimer = window.setInterval(() => step(1), 8000);
+    rotationTimer = window.setInterval(() => step(1), 6000);
   };
 
   render();
@@ -280,6 +280,48 @@ async function initMainDashboardStories() {
       resetTimer();
     });
   }
+
+  let pointerStartX = 0;
+  let pointerStartY = 0;
+  let pointerActive = false;
+
+  const onPointerStart = (event) => {
+    const point = event.touches ? event.touches[0] : event;
+    if (!point) {
+      return;
+    }
+    pointerActive = true;
+    pointerStartX = point.clientX;
+    pointerStartY = point.clientY;
+  };
+
+  const onPointerEnd = (event) => {
+    if (!pointerActive) {
+      return;
+    }
+    const point = event.changedTouches ? event.changedTouches[0] : event;
+    if (!point) {
+      pointerActive = false;
+      return;
+    }
+    const deltaX = point.clientX - pointerStartX;
+    const deltaY = point.clientY - pointerStartY;
+    pointerActive = false;
+    if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY)) {
+      return;
+    }
+    if (deltaX > 0) {
+      step(-1);
+    } else {
+      step(1);
+    }
+    resetTimer();
+  };
+
+  container.addEventListener('touchstart', onPointerStart, { passive: true });
+  container.addEventListener('touchend', onPointerEnd, { passive: true });
+  container.addEventListener('mousedown', onPointerStart);
+  container.addEventListener('mouseup', onPointerEnd);
 }
 
 async function initProfileSetupPage() {

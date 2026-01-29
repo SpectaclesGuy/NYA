@@ -52,5 +52,5 @@ uvicorn app.main:app --reload
 - Static assets are served from `/assets`.
 
 for logs
-docker compose logs -f app
+sudo docker compose logs -f app
 sudo ufw deny from 79.124.40.174
