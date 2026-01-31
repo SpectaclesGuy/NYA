@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Bex | NYA Buddy</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1F2A36",
+              ink: "#141414",
+              "background-light": "#F7F6F3",
+              "warm-gray": "#E3DED6",
+              "terminal-green": "#2B6A4F",
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+              serif: ["Montserrat", "sans-serif"],
+            },
+            boxShadow: {
+              premium: "0 10px 40px -10px rgba(0, 27, 61, 0.06)",
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-background-light text-ink font-sans antialiased;
+        }
+      }
+      .paper-texture {
+        background-image: linear-gradient(120deg, rgba(31, 42, 54, 0.03), rgba(31, 42, 54, 0.02)),
+          repeating-linear-gradient(
+            0deg,
+            rgba(31, 42, 54, 0.02),
+            rgba(31, 42, 54, 0.02) 1px,
+            transparent 1px,
+            transparent 6px
+          );
+      }
+      .masthead-title {
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+      }
+      .drop-cap:first-letter {
+        float: left;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        font-size: 3.2rem;
+        line-height: 0.9;
+        padding-right: 0.35rem;
+        padding-top: 0.25rem;
+      }
+      .terminal-panel {
+        background: rgba(20, 30, 24, 0.08);
+        border: 1px dashed rgba(43, 106, 79, 0.35);
+        backdrop-filter: blur(6px);
+      }
+      .terminal-line {
+        position: relative;
+        padding-left: 1.2rem;
+      }
+      .terminal-line::before {
+        content: ">";
+        position: absolute;
+        left: 0;
+        color: rgba(43, 106, 79, 0.65);
+      }
+      .pixel-player {
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(31, 42, 54, 0.2);
+        box-shadow: 0 10px 30px -20px rgba(31, 42, 54, 0.25);
+      }
+      .pixel-frame {
+        border: 1px solid rgba(31, 42, 54, 0.2);
+        box-shadow: inset 0 0 0 1px rgba(31, 42, 54, 0.12);
+        background: rgba(247, 243, 236, 0.7);
+      }
+      .pixel-controls button {
+        border: 1px solid rgba(31, 42, 54, 0.3);
+        background: rgba(255, 255, 255, 0.7);
+        color: #1f2a36;
+      }
+      .pixel-controls button:hover {
+        background: rgba(31, 42, 54, 0.08);
+      }
+      .pixel-bars {
+        background-image: repeating-linear-gradient(
+          90deg,
+          rgba(31, 42, 54, 0.25),
+          rgba(31, 42, 54, 0.25) 6px,
+          transparent 6px,
+          transparent 12px
+        );
+        image-rendering: pixelated;
+      }
+      #capstone-result {
+        white-space: pre-line;
+      }
+      .bex-swap {
+        transition: opacity 240ms ease, transform 240ms ease;
+      }
+      .bex-swap.is-fading {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      .bex-avatar {
+        position: fixed;
+        right: max(1rem, calc(50% - 520px));
+        bottom: 1rem;
+        width: clamp(12rem, 22vw, 20rem);
+        filter: drop-shadow(0 10px 18px rgba(31, 42, 54, 0.2));
+        z-index: 20;
+        pointer-events: auto;
+        cursor: grab;
+        touch-action: none;
+      }
+      .bex-avatar.is-dragging {
+        cursor: grabbing;
+      }
+      @media (max-width: 768px) {
+        .bex-avatar {
+          width: 9.5rem;
+          right: 1rem;
+          bottom: 0.4rem;
+        }
+      }
+      @media (max-width: 640px) {
+        .terminal-panel {
+          padding: 1.25rem;
+        }
+        .pixel-player {
+          padding: 1rem;
+        }
+        .pixel-controls {
+          gap: 0.5rem;
+        }
+        .pixel-controls button {
+          padding: 0.45rem 0.9rem;
+          font-size: 0.65rem;
+        }
+      }
+      @media (max-width: 640px) {
+        .bex-swap {
+          width: 6.5rem;
+          bottom: 1.5rem;
+          right: 1rem;
+          opacity: 0.85;
+        }
+      }
+      .menu-tile:hover {
+        transform: translateY(-2px);
+      }
+    </style>
+    <link href="/pages/nya.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen relative overflow-x-hidden">
+    <main class="min-h-screen paper-texture px-4 sm:px-6 py-10 md:py-16 pb-36 sm:pb-28">
+      <div class="mx-auto flex w-full max-w-[1100px] flex-col gap-10">
+        <header class="border-b border-primary/30 pb-6">
+          <p class="text-[10px] uppercase tracking-[0.4em] text-primary/60">NYA Buddy Desk</p>
+          <h1 class="masthead-title text-3xl md:text-5xl text-primary mt-3 leading-tight">
+            Meet Bex, your idea companion.
+          </h1>
+          <p class="mt-4 max-w-[640px] text-sm md:text-base text-gray-600 drop-cap">
+            Hi, I am Bex, your NYA buddy to help you. Let's ponder over capstone ides or let's chill with some lofi music.
+          </p>
+        </header>
+
+        <section class="grid gap-8">
+          <div class="terminal-panel rounded-2xl px-6 py-7 md:px-8 md:py-9 shadow-premium max-w-[760px] mx-auto w-full">
+            <div class="space-y-3">
+              <p class="text-[11px] uppercase tracking-[0.3em] text-terminal-green/70">Bex Menu</p>
+              <h2 class="text-2xl font-semibold text-primary">Your next move</h2>
+              <div class="h-px w-24 bg-primary/30"></div>
+              <p class="terminal-line text-sm text-gray-600">
+                Pick a focus and I will keep the notes tight and the momentum steady.
+              </p>
+            </div>
+            <div class="mt-6 grid gap-4">
+              <button
+                id="capstone-toggle"
+                class="menu-tile group flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center rounded-xl border border-primary/15 bg-white/40 px-5 py-4 text-left transition"
+                type="button"
+              >
+                <div>
+                  <p class="text-sm font-semibold text-primary">Think about a capstone idea</p>
+                  <p class="text-xs text-gray-600">Brainstorm with prompts, themes, and goals.</p>
+                </div>
+                <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-terminal-green">Start</span>
+              </button>
+              <button
+                id="lofi-toggle"
+                class="menu-tile group flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center rounded-xl border border-primary/15 bg-white/40 px-5 py-4 text-left transition"
+                type="button"
+              >
+                <div>
+                  <p class="text-sm font-semibold text-primary">Play lofi music</p>
+                  <p class="text-xs text-gray-600">Soft beats for study, sketching, or building.</p>
+                </div>
+                <span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-terminal-green">Play</span>
+              </button>
+            </div>
+
+            <div id="lofi-player" class="mt-6 hidden">
+              <div class="pixel-player rounded-2xl p-4 md:p-5">
+                <div class="flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-primary/60">
+                  <span>NYA Radio Desk</span>
+                  <button id="lofi-close" class="text-primary/60" type="button">Close</button>
+                </div>
+                <div class="mt-4 space-y-3">
+                  <div class="pixel-frame rounded-xl p-3">
+                    <div class="pixel-bars h-6 rounded-md"></div>
+                    <div class="mt-3 rounded-lg border border-primary/20 bg-white/70 px-4 py-5">
+                      <div class="flex items-center justify-between text-xs uppercase tracking-[0.25em] text-primary/60">
+                        <span>On Air</span>
+                        <span id="radio-status">Standby</span>
+                      </div>
+                      <div class="mt-3 text-sm font-semibold text-primary">Lofi Girl Radio</div>
+                      <div class="mt-1 text-xs text-gray-600">beats to relax / study to</div>
+                    </div>
+                  </div>
+                  <div class="pixel-controls flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.25em]">
+                    <button id="lofi-play" class="rounded-full px-4 py-2" type="button">Play</button>
+                    <button id="lofi-pause" class="rounded-full px-4 py-2" type="button">Pause</button>
+                    <button id="lofi-stop" class="rounded-full px-4 py-2" type="button">Stop</button>
+                    <div class="flex items-center gap-3 text-primary/60 w-full sm:w-auto">
+                      <span>Vol</span>
+                      <input
+                        id="lofi-volume"
+                        class="h-2 w-36 accent-primary"
+                        type="range"
+                        min="0"
+                        max="100"
+                        value="60"
+                      />
+                    </div>
+                  </div>
+                  <div class="hidden">
+                    <div id="yt-player" class="h-0 w-0"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="capstone-panel" class="mt-6 hidden">
+              <div class="rounded-2xl border border-primary/15 bg-white/60 p-5 md:p-6">
+                <div class="flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-primary/60">
+                  <span>Capstone Prompt</span>
+                  <button id="capstone-close" class="text-primary/60" type="button">Close</button>
+                </div>
+                <form id="capstone-form" class="mt-4 grid gap-4">
+                  <label class="grid gap-2 text-xs uppercase tracking-[0.25em] text-primary/60">
+                    Field
+                    <select
+                      id="capstone-field"
+                      class="rounded-lg border border-primary/15 bg-white/80 px-3 py-2 text-sm text-primary"
+                      required
+                    >
+                      <option value="">Select a field</option>
+                      <option value="hardware">Hardware</option>
+                      <option value="software">Software</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </label>
+                  <label class="grid gap-2 text-xs uppercase tracking-[0.25em] text-primary/60">
+                    Focus Area
+                    <select
+                      id="capstone-focus"
+                      class="rounded-lg border border-primary/15 bg-white/80 px-3 py-2 text-sm text-primary"
+                      required
+                    >
+                      <option value="">Select a focus</option>
+                      <option value="ml-ai">ML / AI</option>
+                      <option value="web-development">Web Development</option>
+                      <option value="iot">IoT</option>
+                      <option value="robotics">Robotics</option>
+                      <option value="data-analytics">Data Analytics</option>
+                      <option value="cybersecurity">Cybersecurity</option>
+                    </select>
+                  </label>
+                  <label class="grid gap-2 text-xs uppercase tracking-[0.25em] text-primary/60">
+                    Notes (optional)
+                    <textarea
+                      id="capstone-notes"
+                      class="min-h-[90px] rounded-lg border border-primary/15 bg-white/80 px-3 py-2 text-sm text-primary"
+                      placeholder="Any constraints, interests, or problems you want to solve?"
+                    ></textarea>
+                  </label>
+                  <button
+                    class="rounded-full border border-primary/30 bg-white/80 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary"
+                    type="submit"
+                  >
+                    Generate Idea
+                  </button>
+                </form>
+                <div id="capstone-result" class="mt-4 hidden rounded-xl border border-primary/10 bg-white/70 p-4 text-sm text-gray-700"></div>
+                <div id="capstone-error" class="mt-3 hidden text-xs text-red-600"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <img
+      alt="Bex buddy illustration"
+      class="bex-swap bex-avatar hidden sm:block"
+      src="/bex/bex.png"
+      id="bex-avatar"
+    />
+    <img
+      alt="Bex buddy illustration"
+      class="bex-swap bex-avatar sm:hidden"
+      src="/bex/bex.png"
+      id="bex-avatar-mobile"
+    />
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+      let ytPlayer;
+      let pendingPlay = false;
+
+      function ensurePlayerReady() {
+        if (ytPlayer) {
+          return Promise.resolve();
+        }
+        return new Promise((resolve) => {
+          const check = () => {
+            if (ytPlayer) {
+              resolve();
+            } else {
+              setTimeout(check, 100);
+            }
+          };
+          check();
+        });
+      }
+
+      function onYouTubeIframeAPIReady() {
+        ytPlayer = new YT.Player("yt-player", {
+          videoId: "jfKfPfyJRdk",
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            modestbranding: 1,
+            rel: 0,
+          },
+          events: {
+            onReady: () => {
+              if (pendingPlay) {
+                ytPlayer.playVideo();
+                pendingPlay = false;
+              }
+            },
+          },
+        });
+      }
+
+      const toggleButton = document.getElementById("lofi-toggle");
+      const playerWrap = document.getElementById("lofi-player");
+      const closeButton = document.getElementById("lofi-close");
+      const playButton = document.getElementById("lofi-play");
+      const pauseButton = document.getElementById("lofi-pause");
+      const stopButton = document.getElementById("lofi-stop");
+      const volumeSlider = document.getElementById("lofi-volume");
+      const radioStatus = document.getElementById("radio-status");
+      const bexAvatar = document.getElementById("bex-avatar");
+      const bexAvatarMobile = document.getElementById("bex-avatar-mobile");
+      const bexStill = "/bex/bex.png";
+      const bexMusic = "/bex/bex_music.png";
+      const bexThinking = "/bex/bex_thinking.png";
+      let isLofiPlaying = false;
+      let bexState = "idle";
+      const capstoneToggle = document.getElementById("capstone-toggle");
+      const capstonePanel = document.getElementById("capstone-panel");
+      const capstoneClose = document.getElementById("capstone-close");
+      const capstoneForm = document.getElementById("capstone-form");
+      const capstoneResult = document.getElementById("capstone-result");
+      const capstoneError = document.getElementById("capstone-error");
+
+      function setBexState(state) {
+        bexState = state;
+        const nextSrc = state === "music" ? bexMusic : state === "thinking" ? bexThinking : bexStill;
+        [bexAvatar, bexAvatarMobile].forEach((avatar) => {
+          if (!avatar) return;
+          avatar.classList.add("is-fading");
+          setTimeout(() => {
+            avatar.src = nextSrc;
+            avatar.classList.remove("is-fading");
+          }, 160);
+        });
+      }
+
+      toggleButton.addEventListener("click", async () => {
+        playerWrap.classList.remove("hidden");
+        if (!ytPlayer) {
+          pendingPlay = true;
+        } else {
+          ytPlayer.playVideo();
+        }
+        radioStatus.textContent = "Playing";
+        isLofiPlaying = true;
+        setBexState("music");
+      });
+
+      closeButton.addEventListener("click", () => {
+        playerWrap.classList.add("hidden");
+        if (ytPlayer) {
+          ytPlayer.pauseVideo();
+        }
+        radioStatus.textContent = "Standby";
+        isLofiPlaying = false;
+        setBexState("idle");
+      });
+
+      playButton.addEventListener("click", async () => {
+        await ensurePlayerReady();
+        ytPlayer.playVideo();
+        radioStatus.textContent = "Playing";
+        isLofiPlaying = true;
+        setBexState("music");
+      });
+
+      pauseButton.addEventListener("click", async () => {
+        await ensurePlayerReady();
+        ytPlayer.pauseVideo();
+        radioStatus.textContent = "Paused";
+        isLofiPlaying = false;
+        setBexState("idle");
+      });
+
+      stopButton.addEventListener("click", async () => {
+        await ensurePlayerReady();
+        ytPlayer.stopVideo();
+        radioStatus.textContent = "Stopped";
+        isLofiPlaying = false;
+        setBexState("idle");
+      });
+
+      volumeSlider.addEventListener("input", async (event) => {
+        await ensurePlayerReady();
+        ytPlayer.setVolume(Number(event.target.value));
+      });
+
+      capstoneToggle.addEventListener("click", () => {
+        capstonePanel.classList.remove("hidden");
+      });
+
+      capstoneClose.addEventListener("click", () => {
+        capstonePanel.classList.add("hidden");
+      });
+
+      capstoneForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        capstoneError.classList.add("hidden");
+        capstoneResult.classList.add("hidden");
+        setBexState("thinking");
+        const payload = {
+          field: document.getElementById("capstone-field").value,
+          focus: document.getElementById("capstone-focus").value,
+          notes: document.getElementById("capstone-notes").value.trim(),
+        };
+
+        try {
+          const response = await fetch("/api/groq/capstone", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            let detail = "Failed to generate idea";
+            try {
+              const errorPayload = await response.json();
+              if (errorPayload && errorPayload.detail) {
+                detail = errorPayload.detail;
+              }
+            } catch (error) {
+              // ignore non-json error
+            }
+            throw new Error(detail);
+          }
+
+          const data = await response.json();
+          capstoneResult.textContent = data.idea || "No idea returned yet.";
+          capstoneResult.classList.remove("hidden");
+        } catch (error) {
+          capstoneError.textContent =
+            error instanceof Error
+              ? error.message
+              : "Could not reach the idea generator yet. Hook up the Groq API endpoint.";
+          capstoneError.classList.remove("hidden");
+        } finally {
+          setBexState(isLofiPlaying ? "music" : "idle");
+        }
+      });
+
+      function makeDraggable(avatar) {
+        if (!avatar) return;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let startLeft = 0;
+        let startTop = 0;
+
+        const onPointerMove = (event) => {
+          if (!isDragging) return;
+          const dx = event.clientX - startX;
+          const dy = event.clientY - startY;
+          avatar.style.left = `${startLeft + dx}px`;
+          avatar.style.top = `${startTop + dy}px`;
+          avatar.style.right = "auto";
+          avatar.style.bottom = "auto";
+        };
+
+        const onPointerUp = () => {
+          if (!isDragging) return;
+          isDragging = false;
+          avatar.classList.remove("is-dragging");
+          window.removeEventListener("pointermove", onPointerMove);
+          window.removeEventListener("pointerup", onPointerUp);
+        };
+
+        avatar.addEventListener("pointerdown", (event) => {
+          isDragging = true;
+          avatar.classList.add("is-dragging");
+          avatar.setPointerCapture(event.pointerId);
+          const rect = avatar.getBoundingClientRect();
+          startX = event.clientX;
+          startY = event.clientY;
+          startLeft = rect.left;
+          startTop = rect.top;
+          avatar.style.left = `${rect.left}px`;
+          avatar.style.top = `${rect.top}px`;
+          avatar.style.right = "auto";
+          avatar.style.bottom = "auto";
+          window.addEventListener("pointermove", onPointerMove);
+          window.addEventListener("pointerup", onPointerUp);
+        });
+      }
+
+      makeDraggable(bexAvatar);
+      makeDraggable(bexAvatarMobile);
+    </script>
+  </body>
+</html>

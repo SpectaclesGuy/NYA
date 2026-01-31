@@ -18,6 +18,7 @@ from app.routes.auth import router as auth_router
 from app.routes.admin import router as admin_router
 from app.routes.onboarding import router as onboarding_router
 from app.routes.config import router as config_router
+from app.routes.groq import router as groq_router
 from app.routes.mentors import router as mentors_router
 from app.routes.profiles import router as profiles_router
 from app.routes.requests import router as requests_router
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
     app.include_router(onboarding_router, prefix="/api")
     app.include_router(admin_router, prefix="/api")
     app.include_router(config_router, prefix="/api")
+    app.include_router(groq_router, prefix="/api")
     app.include_router(users_router, prefix="/api")
     app.include_router(profiles_router, prefix="/api")
     app.include_router(mentors_router, prefix="/api")
@@ -70,6 +72,7 @@ def create_app() -> FastAPI:
         app.mount("/pages", StaticFiles(directory=str(pages_dir), html=True), name="pages")
 
     assets_dir = root_dir / "assests"
+    bex_dir = root_dir / "bex"
     if assets_dir.exists():
         app.mount("/assests", StaticFiles(directory=str(assets_dir)), name="assests")
 
@@ -83,6 +86,18 @@ def create_app() -> FastAPI:
 
         def page(path: str) -> FileResponse:
             return FileResponse(str(pages_dir / path))
+
+        @app.get("/bex")
+        async def bex_page():
+            return page("bex.html")
+
+        if bex_dir.exists():
+            @app.get("/bex/{asset_path:path}")
+            async def bex_asset(asset_path: str):
+                candidate = bex_dir / asset_path
+                if candidate.exists():
+                    return FileResponse(str(candidate))
+                raise HTTPException(status_code=404, detail="Asset not found")
 
         async def redirect_if_incomplete(user: dict, db):
             if user.get("role") == "ADMIN":

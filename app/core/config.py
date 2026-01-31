@@ -115,6 +115,15 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("NYA_SMTP_USE_STARTTLS", "SMTP_USE_STARTTLS"),
     )
 
+    groq_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("NYA_GROQ_API_KEY", "GROQ_API_KEY"),
+    )
+    groq_model: str = Field(
+        default="llama-3.3-70b-versatile",
+        validation_alias=AliasChoices("NYA_GROQ_MODEL", "GROQ_MODEL"),
+    )
+
     @property
     def admin_email_list(self) -> list[str]:
         if not self.admin_emails:
