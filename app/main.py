@@ -280,6 +280,14 @@ def create_app() -> FastAPI:
         async def transition_page():
             return page("transition.html")
 
+        @app.get("/valentines")
+        async def valentines_page():
+            return page("valentines.html")
+
+        @app.get("/valentines/yes")
+        async def valentines_yes_page():
+            return page("valentines_yes.html")
+
         @app.get("/admin/mentors")
         async def admin_mentors_page():
             return page("admin_mentors.html")

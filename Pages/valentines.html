@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Be My Valentine?</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              blush: '#fff3f7',
+              cherry: '#f43f79',
+              candy: '#ff8fb1',
+              plum: '#7a2d52',
+            },
+            fontFamily: {
+              heading: ['Baloo 2', 'cursive'],
+              body: ['Nunito', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply font-body text-plum;
+        }
+      }
+      .heart-bg {
+        background:
+          radial-gradient(circle at 12% 18%, rgba(255, 143, 177, 0.3) 0, rgba(255, 143, 177, 0) 32%),
+          radial-gradient(circle at 82% 24%, rgba(244, 63, 121, 0.25) 0, rgba(244, 63, 121, 0) 30%),
+          radial-gradient(circle at 50% 88%, rgba(255, 192, 203, 0.3) 0, rgba(255, 192, 203, 0) 34%),
+          #fff;
+      }
+      .floaty {
+        animation: floaty 3.4s ease-in-out infinite;
+      }
+      @keyframes floaty {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+        100% { transform: translateY(0px); }
+      }
+      .btn-pop {
+        transition: transform 180ms ease, box-shadow 180ms ease, opacity 160ms ease;
+      }
+      .song-item {
+        @apply w-full text-left px-3 py-2 rounded-lg hover:bg-blush transition text-sm;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen heart-bg overflow-x-hidden">
+    <main class="min-h-screen px-4 py-8 md:py-12 flex items-center justify-center">
+      <section class="w-full max-w-2xl">
+        <div class="bg-blush/85 backdrop-blur rounded-3xl shadow-xl border border-candy/30 p-5 sm:p-8 text-center relative overflow-hidden">
+          <div class="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-candy/30"></div>
+          <div class="absolute -right-8 -bottom-8 h-28 w-28 rounded-full bg-cherry/20"></div>
+
+          <img
+            src="https://upload.wikimedia.org/wikipedia/en/0/05/Hello_kitty_character_portrait.png"
+            alt="Hello Kitty"
+            class="h-24 w-24 sm:h-28 sm:w-28 object-contain mx-auto floaty"
+            loading="lazy"
+          />
+
+          <h1 id="valentine-question" class="font-heading text-4xl sm:text-5xl mt-3 text-cherry">Will you be my Valentine?</h1>
+          <p id="valentine-subtitle" class="mt-3 text-base sm:text-lg text-plum/80">I even brought Hello Kitty to ask properly.</p>
+
+          <div id="buttons-zone" class="mt-7 h-36 sm:h-44 relative">
+            <a
+              id="yes-button"
+              href="/valentines/yes"
+              class="btn-pop inline-flex items-center justify-center rounded-full bg-cherry text-white px-9 py-3 font-bold text-lg shadow-lg hover:scale-105 hover:bg-[#e5356e]"
+            >
+              Yes
+            </a>
+
+            <button
+              id="no-button"
+              type="button"
+              class="btn-pop absolute left-1/2 top-24 -translate-x-1/2 inline-flex items-center justify-center rounded-full bg-white border-2 border-candy text-plum px-9 py-3 font-bold text-lg shadow"
+            >
+              No
+            </button>
+          </div>
+
+          <img
+            src="https://media.tenor.com/eWU5rxdE-o8AAAAi/hello-kitty-love.gif"
+            alt="Hello Kitty heart"
+            class="h-20 w-20 sm:h-24 sm:w-24 object-contain mx-auto"
+            loading="lazy"
+          />
+        </div>
+      </section>
+    </main>
+
+    <div id="setup-modal" class="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-4 hidden">
+      <div class="w-full max-w-xl rounded-2xl bg-white border border-candy/40 shadow-2xl p-5 sm:p-7">
+        <h2 class="font-heading text-3xl text-cherry">Create Your Valentine Link</h2>
+
+        <div class="mt-4 space-y-4 text-left">
+          <div>
+            <label for="name-input" class="block text-sm font-semibold mb-1">1) What is your valentine's name?</label>
+            <input
+              id="name-input"
+              type="text"
+              class="w-full rounded-xl border-candy/60 focus:border-cherry focus:ring-cherry"
+              placeholder="Enter a name"
+            />
+          </div>
+
+          <div>
+            <label for="song-input" class="block text-sm font-semibold mb-1">2) Do you want to dedicate a song?</label>
+            <input
+              id="song-input"
+              type="text"
+              autocomplete="off"
+              class="w-full rounded-xl border-candy/60 focus:border-cherry focus:ring-cherry"
+              placeholder="Type song name (e.g., Perfect)"
+            />
+            <p class="text-xs text-plum/70 mt-1">Pick one suggestion so we can attach music to the link.</p>
+            <div id="song-results" class="mt-2 border border-candy/40 rounded-xl p-2 max-h-44 overflow-y-auto hidden"></div>
+          </div>
+
+          <button
+            id="generate-link-btn"
+            type="button"
+            class="w-full rounded-xl bg-cherry text-white py-2.5 font-bold hover:bg-[#e5356e] transition"
+          >
+            Generate Shareable Link
+          </button>
+
+          <div id="share-wrap" class="hidden">
+            <label for="share-link" class="block text-sm font-semibold mb-1">Share this link</label>
+            <div class="flex gap-2">
+              <input id="share-link" type="text" readonly class="w-full rounded-xl border-candy/60" />
+              <button id="copy-link-btn" type="button" class="shrink-0 rounded-xl border border-candy px-3 font-semibold">Copy</button>
+            </div>
+            <p class="text-xs text-plum/70 mt-1">Opening this link will load the song for background playback.</p>
+            <button id="preview-btn" type="button" class="mt-3 text-sm underline font-semibold text-cherry">Preview this page</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const noButton = document.getElementById('no-button');
+      const yesButton = document.getElementById('yes-button');
+      const zone = document.getElementById('buttons-zone');
+      const questionEl = document.getElementById('valentine-question');
+      const subtitleEl = document.getElementById('valentine-subtitle');
+      const desktopQuery = window.matchMedia('(min-width: 768px) and (pointer: fine)');
+
+      const setupModal = document.getElementById('setup-modal');
+      const nameInput = document.getElementById('name-input');
+      const songInput = document.getElementById('song-input');
+      const songResults = document.getElementById('song-results');
+      const generateButton = document.getElementById('generate-link-btn');
+      const shareWrap = document.getElementById('share-wrap');
+      const shareLinkInput = document.getElementById('share-link');
+      const copyButton = document.getElementById('copy-link-btn');
+      const previewButton = document.getElementById('preview-btn');
+
+      const mobileNoTexts = ['Are you sure?', 'Really no?', 'Think again?', 'Pretty please?', 'Last chance!'];
+      let mobileNoCount = 0;
+      let selectedSong = null;
+      let searchDebounce = null;
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
+      }
+
+      function getSharedDataFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          name: (params.get('name') || '').trim(),
+          song: (params.get('song') || '').trim(),
+          artist: (params.get('artist') || '').trim(),
+          preview: (params.get('preview') || '').trim(),
+        };
+      }
+
+      function buildShareUrl(data) {
+        const url = new URL('/valentines', window.location.origin);
+        url.searchParams.set('name', data.name);
+        url.searchParams.set('song', data.song);
+        url.searchParams.set('artist', data.artist);
+        url.searchParams.set('preview', data.preview);
+        return url.toString();
+      }
+
+      function applySharedData(data) {
+        const safeName = data.name || 'Cutie';
+        questionEl.textContent = `Will you be my Valentine, ${safeName}?`;
+        subtitleEl.textContent = 'I even brought Hello Kitty to ask properly.';
+
+        const yesUrl = new URL('/valentines/yes', window.location.origin);
+        yesUrl.searchParams.set('name', data.name || '');
+        yesUrl.searchParams.set('song', data.song || '');
+        yesUrl.searchParams.set('artist', data.artist || '');
+        yesUrl.searchParams.set('preview', data.preview || '');
+        yesButton.href = yesUrl.pathname + yesUrl.search;
+      }
+
+      function showModal(show) {
+        setupModal.classList.toggle('hidden', !show);
+      }
+
+      async function searchSongs(term) {
+        const query = term.trim();
+        if (query.length < 2) {
+          songResults.classList.add('hidden');
+          songResults.innerHTML = '';
+          return;
+        }
+
+        try {
+          const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=8`);
+          const data = await response.json();
+          const tracks = (data.results || []).filter((item) => item.previewUrl).slice(0, 6);
+
+          if (!tracks.length) {
+            songResults.classList.remove('hidden');
+            songResults.innerHTML = '<p class="px-2 py-2 text-sm text-plum/70">No previewable tracks found.</p>';
+            return;
+          }
+
+          songResults.classList.remove('hidden');
+          songResults.innerHTML = tracks
+            .map((track) => {
+              const payload = escapeHtml(JSON.stringify({
+                song: track.trackName,
+                artist: track.artistName,
+                preview: track.previewUrl,
+              }));
+              return `
+                <button type="button" class="song-item" data-song="${payload}">
+                  <div class="font-semibold">${escapeHtml(track.trackName)}</div>
+                  <div class="text-xs text-plum/70">${escapeHtml(track.artistName)}</div>
+                </button>
+              `;
+            })
+            .join('');
+        } catch (_error) {
+          songResults.classList.remove('hidden');
+          songResults.innerHTML = '<p class="px-2 py-2 text-sm text-red-500">Song lookup failed. Try again.</p>';
+        }
+      }
+
+      function randomizeNoPosition() {
+        const zoneRect = zone.getBoundingClientRect();
+        const buttonRect = noButton.getBoundingClientRect();
+
+        const maxX = Math.max(0, zoneRect.width - buttonRect.width - 10);
+        const maxY = Math.max(0, zoneRect.height - buttonRect.height - 10);
+
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+
+        noButton.style.left = `${x}px`;
+        noButton.style.top = `${y}px`;
+        noButton.style.transform = 'translate(0, 0)';
+      }
+
+      function handleDesktopMouseMove(event) {
+        if (!desktopQuery.matches || noButton.style.display === 'none') {
+          return;
+        }
+
+        const rect = noButton.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distance = Math.hypot(event.clientX - centerX, event.clientY - centerY);
+
+        if (distance < 130) {
+          randomizeNoPosition();
+        }
+      }
+
+      function handleNoClick(event) {
+        if (desktopQuery.matches) {
+          event.preventDefault();
+          randomizeNoPosition();
+          return;
+        }
+
+        mobileNoCount += 1;
+        const scale = Math.max(0.2, 1 - mobileNoCount * 0.16);
+        if (mobileNoCount === 1) {
+          noButton.style.left = '50%';
+          noButton.style.top = '0.25rem';
+          yesButton.style.position = 'absolute';
+          yesButton.style.left = '50%';
+          yesButton.style.top = '6rem';
+          yesButton.style.transform = 'translate(-50%, 0)';
+        }
+        noButton.style.transform = `translate(-50%, 0) scale(${scale})`;
+
+        if (mobileNoCount <= mobileNoTexts.length) {
+          noButton.textContent = mobileNoTexts[mobileNoCount - 1];
+        }
+
+        if (mobileNoCount >= 5) {
+          noButton.style.opacity = '0';
+          noButton.style.pointerEvents = 'none';
+          window.setTimeout(() => {
+            noButton.style.display = 'none';
+          }, 200);
+        }
+      }
+
+      songInput.addEventListener('input', () => {
+        selectedSong = null;
+        window.clearTimeout(searchDebounce);
+        searchDebounce = window.setTimeout(() => searchSongs(songInput.value), 260);
+      });
+
+      songResults.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-song]');
+        if (!target) {
+          return;
+        }
+        const data = JSON.parse(target.dataset.song);
+        selectedSong = data;
+        songInput.value = `${data.song} - ${data.artist}`;
+        songResults.classList.add('hidden');
+      });
+
+      generateButton.addEventListener('click', () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+          nameInput.focus();
+          return;
+        }
+        if (!selectedSong || !selectedSong.preview) {
+          songInput.focus();
+          return;
+        }
+
+        const payload = {
+          name,
+          song: selectedSong.song,
+          artist: selectedSong.artist,
+          preview: selectedSong.preview,
+        };
+
+        const link = buildShareUrl(payload);
+        shareLinkInput.value = link;
+        shareWrap.classList.remove('hidden');
+        applySharedData(payload);
+      });
+
+      copyButton.addEventListener('click', async () => {
+        if (!shareLinkInput.value) {
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(shareLinkInput.value);
+          copyButton.textContent = 'Copied';
+          window.setTimeout(() => {
+            copyButton.textContent = 'Copy';
+          }, 1200);
+        } catch (_error) {
+          shareLinkInput.select();
+          document.execCommand('copy');
+        }
+      });
+
+      previewButton.addEventListener('click', () => {
+        showModal(false);
+      });
+
+      noButton.addEventListener('click', handleNoClick);
+      noButton.addEventListener('mouseenter', () => {
+        if (desktopQuery.matches) {
+          randomizeNoPosition();
+        }
+      });
+      zone.addEventListener('mousemove', handleDesktopMouseMove);
+
+      desktopQuery.addEventListener('change', () => {
+        mobileNoCount = 0;
+        noButton.textContent = 'No';
+        noButton.style.opacity = '1';
+        noButton.style.pointerEvents = 'auto';
+        noButton.style.display = 'inline-flex';
+        noButton.style.transform = 'translate(-50%, 0)';
+        noButton.style.left = '50%';
+        noButton.style.top = '6rem';
+        yesButton.style.position = '';
+        yesButton.style.left = '';
+        yesButton.style.top = '';
+        yesButton.style.transform = '';
+      });
+
+      const sharedData = getSharedDataFromUrl();
+      if (sharedData.name) {
+        applySharedData(sharedData);
+        showModal(false);
+      } else {
+        showModal(true);
+      }
+    </script>
+  </body>
+</html>

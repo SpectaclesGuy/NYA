@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Yay Valentine!</title>
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              sugar: '#fff7fb',
+              rose: '#f43f79',
+              petal: '#ffbfd3',
+              ink: '#6f2a49',
+            },
+            fontFamily: {
+              heading: ['Baloo 2', 'cursive'],
+              body: ['Nunito', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply font-body text-ink;
+        }
+      }
+      .shine-bg {
+        background:
+          radial-gradient(circle at 15% 10%, rgba(255, 191, 211, 0.45) 0, rgba(255, 191, 211, 0) 30%),
+          radial-gradient(circle at 80% 20%, rgba(244, 63, 121, 0.25) 0, rgba(244, 63, 121, 0) 35%),
+          radial-gradient(circle at 50% 80%, rgba(255, 223, 236, 0.7) 0, rgba(255, 223, 236, 0) 45%),
+          #fff;
+      }
+      .pulse-heart {
+        animation: pulseHeart 1.8s ease-in-out infinite;
+      }
+      @keyframes pulseHeart {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1); }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen shine-bg">
+    <main class="min-h-screen px-4 py-10 flex items-center justify-center">
+      <section class="w-full max-w-2xl bg-sugar/90 border border-petal rounded-3xl shadow-xl p-6 sm:p-10 text-center">
+        <img
+          id="cat-image"
+          src="/assets/cat_blush.jpg"
+          alt="Blushing cat"
+          class="h-44 w-44 sm:h-56 sm:w-56 object-contain mx-auto"
+          loading="lazy"
+        />
+
+        <h1 id="yes-title" class="font-heading text-4xl sm:text-5xl text-rose mt-6 pulse-heart">Yay, you said YES!</h1>
+
+        <p id="yes-line" class="mt-4 text-lg sm:text-xl leading-relaxed">
+          You just made this day 100x sweeter. <br />
+          Happy Valentine's Day, cutie.
+        </p>
+
+        <p id="song-line" class="mt-4 text-base sm:text-lg text-ink/80">
+          Sending you hugs, snacks, and all the soft pink vibes.
+        </p>
+
+        <div id="player-wrap" class="mt-6 hidden">
+          <p class="text-sm font-semibold mb-2">Your dedicated song is now playing:</p>
+          <audio id="yes-audio" controls class="w-full"></audio>
+          <p id="autoplay-note" class="text-xs text-ink/70 mt-2 hidden">
+            Autoplay may be blocked by your browser. Press play if needed.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function getParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          name: (params.get('name') || '').trim(),
+          song: (params.get('song') || '').trim(),
+          artist: (params.get('artist') || '').trim(),
+          preview: (params.get('preview') || '').trim(),
+        };
+      }
+
+      const data = getParams();
+      const titleEl = document.getElementById('yes-title');
+      const lineEl = document.getElementById('yes-line');
+      const songLineEl = document.getElementById('song-line');
+      const playerWrap = document.getElementById('player-wrap');
+      const yesAudio = document.getElementById('yes-audio');
+      const autoplayNote = document.getElementById('autoplay-note');
+
+      if (data.name) {
+        titleEl.textContent = `Yay, ${data.name} said YES!`;
+      }
+
+      if (data.song && data.artist) {
+        lineEl.innerHTML = `You just made this day 100x sweeter. <br />Happy Valentine's Day, cutie.`;
+        songLineEl.textContent = `Song dedication: ${data.song} by ${data.artist}.`;
+      }
+
+      if (data.preview) {
+        playerWrap.classList.remove('hidden');
+        yesAudio.src = data.preview;
+        yesAudio.volume = 0.35;
+        yesAudio.play().catch(() => {
+          autoplayNote.classList.remove('hidden');
+        });
+      }
+    </script>
+  </body>
+</html>
