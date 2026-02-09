@@ -88,7 +88,11 @@ def create_app() -> FastAPI:
             return FileResponse(str(pages_dir / path))
 
         @app.get("/bex")
-        async def bex_page():
+        async def bex_page(request: Request, db=Depends(get_db)):
+            try:
+                await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
             return page("bex.html")
 
         if bex_dir.exists():

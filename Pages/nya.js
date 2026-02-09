@@ -733,23 +733,17 @@ async function initDashboardPage() {
   let shuffleIndex = 0;
   let currentPage = 1;
   const pageSize = 12;
+  let discoverPool = [];
   if (!discoverInput && !document.getElementById('discover-list')) {
     return;
   }
 
-  async function loadDiscover() {
-    const term = discoverInput?.value?.trim();
-    const params = new URLSearchParams();
-    if (term) {
-      params.set('search', term);
-    }
-    params.set('page', String(currentPage));
-    params.set('limit', String(pageSize));
-    const query = params.toString() ? `?${params.toString()}` : '';
-    const data = await apiFetch(`/api/users/discover${query}`);
-    renderDiscoverList(data);
+  function applyDiscoverPage() {
+    const start = (currentPage - 1) * pageSize;
+    const pageItems = discoverPool.slice(start, start + pageSize);
+    renderDiscoverList(pageItems);
     if (countLabel) {
-      countLabel.textContent = `Showing ${data.length} Candidates`;
+      countLabel.textContent = `Showing ${pageItems.length} Candidates`;
     }
     if (pageLabel) {
       pageLabel.textContent = `Page ${currentPage}`;
@@ -760,11 +754,25 @@ async function initDashboardPage() {
       prevButton.classList.toggle('cursor-not-allowed', prevButton.disabled);
     }
     if (nextButton) {
-      const hasNext = data.length === pageSize;
+      const hasNext = start + pageSize < discoverPool.length;
       nextButton.disabled = !hasNext;
       nextButton.classList.toggle('opacity-50', nextButton.disabled);
       nextButton.classList.toggle('cursor-not-allowed', nextButton.disabled);
     }
+  }
+
+  async function loadDiscover() {
+    const term = discoverInput?.value?.trim();
+    const params = new URLSearchParams();
+    if (term) {
+      params.set('search', term);
+    }
+    params.set('pool', 'true');
+    params.set('limit', '500');
+    const query = params.toString() ? `?${params.toString()}` : '';
+    discoverPool = await apiFetch(`/api/users/discover${query}`);
+    currentPage = 1;
+    applyDiscoverPage();
   }
 
   async function loadRecommended() {
@@ -907,14 +915,17 @@ async function initDashboardPage() {
     prevButton.addEventListener('click', () => {
       if (currentPage > 1) {
         currentPage -= 1;
-        loadDiscover();
+        applyDiscoverPage();
       }
     });
   }
   if (nextButton) {
     nextButton.addEventListener('click', () => {
-      currentPage += 1;
-      loadDiscover();
+      const hasNext = currentPage * pageSize < discoverPool.length;
+      if (hasNext) {
+        currentPage += 1;
+        applyDiscoverPage();
+      }
     });
   }
 

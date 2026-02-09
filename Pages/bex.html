@@ -12,6 +12,11 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/pages/nya.js?v=2" defer></script>
     <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -169,7 +174,42 @@
     <link href="/pages/nya.css" rel="stylesheet" />
   </head>
   <body class="min-h-screen relative overflow-x-hidden">
-    <main class="min-h-screen paper-texture px-4 sm:px-6 py-10 md:py-16 pb-36 sm:pb-28">
+    <header class="sticky top-0 z-50 bg-white border-b border-warm-gray">
+      <div class="max-w-[1400px] mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-10">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center">
+              <img alt="NYA logo" class="h-10 w-auto object-contain" src="/assets/nya_logo.png" />
+            </div>
+            <h1 class="text-sm font-semibold tracking-[0.2em] uppercase hidden md:block">NYA Community</h1>
+          </div>
+          <nav class="hidden md:flex items-center gap-10">
+            <a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/main_dashboard">Discover</a>
+            <a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/profile/setup">Update Profile</a>
+            <a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentors">Prefects</a>
+            <a class="text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/requests">My Team</a>
+            <a class="text-xs font-semibold tracking-widest uppercase border-b-2 border-primary pb-1" href="/bex">Bex</a>
+            <a id="mentor-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/mentor/dashboard">Prefect Dashboard</a>
+            <a id="admin-nav" class="hidden text-xs font-semibold tracking-widest uppercase text-gray-400 hover:text-primary transition-colors" href="/admin/users">Admin</a>
+          </nav>
+        </div>
+        <div class="flex items-center gap-6">
+          <button id="logout-button" class="hidden sm:inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 hover:text-primary transition-colors">
+            <span class="material-symbols-outlined text-[16px]">logout</span>
+            Logout
+          </button>
+          <div class="h-6 w-[1px] bg-warm-gray"></div>
+          <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+              <p class="text-[10px] font-bold uppercase tracking-tighter text-gray-400">Collaborator</p>
+              <span id="nav-user-name" class="text-xs font-medium">Member</span>
+            </div>
+            <a id="nav-profile-link" class="w-10 h-10 rounded-full bg-cover bg-center border border-warm-gray" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCXMAuFlpfGLb8YpJibsxtzbW83UZ6AareCHOsAxn3Nf94v-Nz39G_zgXq-K9q-IOgNC-XRxVBc2u0mc8wDa1O4aBFq0gysh8JdizlaWNWeUjtlUdSp1wbxB92BVSunOEYWOvQvPcdB_Ze_0LrVIh9NxR1-vyYotaH4MMbA8_8ZlfZOPRIjW3GsnLyJUVg7HQ_UhlQ7-eieV8mDRAmWLuQVbDb0UjADjJRw2fqW-2FIDDOX2NZEBF7aGVzk3CmAr5GeiGGCicRaQMk");' href="/profile" aria-label="View profile"></a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="min-h-screen paper-texture px-4 sm:px-6 pt-10 md:pt-12 pb-36 sm:pb-28">
       <div class="mx-auto flex w-full max-w-[1100px] flex-col gap-10">
         <header class="border-b border-primary/30 pb-6">
           <p class="text-[10px] uppercase tracking-[0.4em] text-primary/60">NYA Buddy Desk</p>
@@ -305,7 +345,7 @@
                     class="rounded-full border border-primary/30 bg-white/80 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary"
                     type="submit"
                   >
-                    Generate Idea
+                    Feeling Lucky.
                   </button>
                 </form>
                 <div id="capstone-result" class="mt-4 hidden rounded-xl border border-primary/10 bg-white/70 p-4 text-sm text-gray-700"></div>

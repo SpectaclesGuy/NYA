@@ -5,6 +5,7 @@ import re
 from bson import ObjectId
 
 from app.utils.mongo import normalize_id
+from app.utils.profile import is_capstone_profile_complete
 
 
 class DiscoveryService:
@@ -20,6 +21,7 @@ class DiscoveryService:
         mentor_assigned: bool | None = None,
         limit: int = 20,
         page: int = 1,
+        pool: bool = False,
     ) -> list[dict]:
         base_query: dict = {}
         if looking_for:
@@ -66,12 +68,15 @@ class DiscoveryService:
         profiles = list(profiles_by_user.values())
         ranked = self._rank_by_skill_match(profiles, skills_terms)
         results = []
-        start = (page - 1) * limit
-        for profile in ranked[start:start + limit]:
+        for profile in ranked:
             user = await self.db.users.find_one({"_id": profile["user_id"]})
             if not user:
                 continue
-            if user.get("role") == "ADMIN":
+            if user.get("role") in {"ADMIN", "MENTOR"}:
+                continue
+            if user.get("blocked"):
+                continue
+            if not is_capstone_profile_complete(profile):
                 continue
             team_count, team_status = await self._get_team_status(profile["user_id"])
             results.append(
@@ -84,7 +89,10 @@ class DiscoveryService:
                     "team_count": team_count,
                 }
             )
-        return results
+        if pool:
+            return results[:limit]
+        start = (page - 1) * limit
+        return results[start:start + limit]
 
     async def recommended_users(self, current_user_id: str, limit: int = 10) -> list[dict]:
         profile = await self.db.capstone_profiles.find_one({"user_id": ObjectId(current_user_id)})
@@ -110,7 +118,11 @@ class DiscoveryService:
             user = await self.db.users.find_one({"_id": profile["user_id"]})
             if not user:
                 continue
-            if user.get("role") == "ADMIN":
+            if user.get("role") in {"ADMIN", "MENTOR"}:
+                continue
+            if user.get("blocked"):
+                continue
+            if not is_capstone_profile_complete(profile):
                 continue
             team_count, team_status = await self._get_team_status(profile["user_id"])
             results.append(

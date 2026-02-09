@@ -25,8 +25,9 @@ async def discover_users(
     search: str | None = Query(default=None),
     looking_for: str | None = Query(default=None),
     mentor_assigned: bool | None = Query(default=None),
-    limit: int = Query(default=20, ge=1, le=50),
+    limit: int = Query(default=20, ge=1, le=500),
     page: int = Query(default=1, ge=1),
+    pool: bool = Query(default=False),
     current_user=Depends(require_onboarding_complete),
     db=Depends(get_db),
 ):
@@ -39,6 +40,7 @@ async def discover_users(
         mentor_assigned=mentor_assigned,
         limit=limit,
         page=page,
+        pool=pool,
     )
 
 
