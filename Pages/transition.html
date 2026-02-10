@@ -59,7 +59,8 @@
 </div>
 <script>
         const params = new URLSearchParams(window.location.search);
-        const target = params.get('target') || '/main_dashboard';
+        const rawTarget = params.get('target') || '/main_dashboard';
+        const target = (rawTarget.startsWith('/') && !rawTarget.startsWith('//')) ? rawTarget : '/main_dashboard';
         const video = document.getElementById('transition-video');
         const minDurationMs = 3000;
         const startedAt = Date.now();

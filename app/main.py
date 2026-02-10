@@ -87,6 +87,18 @@ def create_app() -> FastAPI:
         def page(path: str) -> FileResponse:
             return FileResponse(str(pages_dir / path))
 
+        def safe_file_response(base_dir: Path, requested_path: str) -> FileResponse | None:
+            # Enforce that requested files stay within base_dir.
+            base_resolved = base_dir.resolve()
+            candidate = (base_resolved / requested_path).resolve()
+            try:
+                candidate.relative_to(base_resolved)
+            except ValueError:
+                return None
+            if candidate.is_file():
+                return FileResponse(str(candidate))
+            return None
+
         @app.get("/bex")
         async def bex_page(request: Request, db=Depends(get_db)):
             try:
@@ -98,9 +110,9 @@ def create_app() -> FastAPI:
         if bex_dir.exists():
             @app.get("/bex/{asset_path:path}")
             async def bex_asset(asset_path: str):
-                candidate = bex_dir / asset_path
-                if candidate.exists():
-                    return FileResponse(str(candidate))
+                file_response = safe_file_response(bex_dir, asset_path)
+                if file_response:
+                    return file_response
                 raise HTTPException(status_code=404, detail="Asset not found")
 
         async def redirect_if_incomplete(user: dict, db):
@@ -417,12 +429,9 @@ def create_app() -> FastAPI:
 
         @app.get("/assets/{asset_path:path}")
         async def asset_fallback(asset_path: str):
-            candidate = root_dir / asset_path
-            if candidate.exists():
-                return FileResponse(str(candidate))
-            assets_candidate = root_dir / "assests" / asset_path
-            if assets_candidate.exists():
-                return FileResponse(str(assets_candidate))
+            file_response = safe_file_response(assets_dir, asset_path)
+            if file_response:
+                return file_response
             raise HTTPException(status_code=404, detail="Asset not found")
 
     @app.on_event("startup")

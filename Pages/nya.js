@@ -41,9 +41,46 @@ function setText(id, value) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function sanitizeInternalPath(path, fallback = '/') {
+  const value = String(path ?? '').trim();
+  if (!value.startsWith('/')) {
+    return fallback;
+  }
+  if (value.startsWith('//')) {
+    return fallback;
+  }
+  if (/[\r\n]/.test(value)) {
+    return fallback;
+  }
+  return value;
+}
+
+function sanitizeImageUrl(url, fallback = '/assets/nya_logo_nobg.png') {
+  const value = String(url ?? '').trim();
+  if (!value) {
+    return fallback;
+  }
+  if (value.startsWith('/')) {
+    return value;
+  }
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+  return fallback;
+}
+
 function createSkillChips(skills) {
   return skills
-    .map((skill) => `<span class="skill-chip border-gray-300 text-[10px] uppercase font-semibold px-3 py-2 text-gray-600">${skill}</span>`)
+    .map((skill) => `<span class="skill-chip border-gray-300 text-[10px] uppercase font-semibold px-3 py-2 text-gray-600">${escapeHtml(skill)}</span>`)
     .join('');
 }
 
@@ -224,17 +261,21 @@ async function initMainDashboardStories() {
 
   const render = () => {
     const current = stories[currentIndex] || stories[0];
+    const safeLink = sanitizeInternalPath(current?.link || '/mentors', '/mentors');
+    const safeTitle = escapeHtml(current?.title || '');
+    const safeImage = escapeHtml(sanitizeImageUrl(current?.image));
+    const safeDescription = escapeHtml(current?.description || '');
     container.innerHTML = current
       ? `
         <div class="story-swap space-y-6">
-        <a href="${current.link || '/mentors'}" class="headline-link inline-flex w-full justify-center">
-          <h3 class="headline-title text-4xl text-primary text-center w-full">${current.title}</h3>
+        <a href="${safeLink}" class="headline-link inline-flex w-full justify-center">
+          <h3 class="headline-title text-4xl text-primary text-center w-full">${safeTitle}</h3>
         </a>
           <div class="border border-warm-gray aspect-[4/3] overflow-hidden bg-sepia">
-            <img src="${current.image}" alt="${current.title}" class="h-full w-full object-cover" loading="lazy" />
+            <img src="${safeImage}" alt="${safeTitle}" class="h-full w-full object-cover" loading="lazy" />
           </div>
           <p class="text-sm text-gray-600 leading-7 drop-cap">
-            ${current.description}
+            ${safeDescription}
           </p>
         </div>
       `
@@ -613,7 +654,7 @@ function renderDiscoverList(items) {
   container.innerHTML = items
     .map(
       (item) => `
-      <div class="group discover-card relative flex flex-col gap-6 bg-white border border-warm-gray hover:shadow-xl hover:shadow-gray-100 transition-all duration-500 cursor-pointer p-8" data-user-id="${item.id}">
+      <div class="group discover-card relative flex flex-col gap-6 bg-white border border-warm-gray hover:shadow-xl hover:shadow-gray-100 transition-all duration-500 cursor-pointer p-8" data-user-id="${escapeHtml(item.id)}">
         <span class="absolute top-6 right-6 text-[10px] font-bold tracking-widest uppercase ${statusStyles(item.team_status)} border px-2 py-1">
           ${statusLabel(item.team_status, item.team_count)}
         </span>
@@ -623,12 +664,12 @@ function renderDiscoverList(items) {
         <div class="discover-body">
           <div class="mb-6">
             <div>
-              <h3 class="text-2xl text-primary mb-1">${item.name}</h3>
-              <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400">${item.looking_for}</p>
+              <h3 class="text-2xl text-primary mb-1">${escapeHtml(item.name)}</h3>
+              <p class="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-400">${escapeHtml(item.looking_for)}</p>
             </div>
           </div>
           <div class="flex flex-wrap gap-2 pt-6 border-t border-warm-gray">
-            ${item.skills.map((skill) => `<span class="text-[10px] uppercase tracking-tighter text-gray-500">${skill}</span>`).join('')}
+            ${(item.skills || []).map((skill) => `<span class="text-[10px] uppercase tracking-tighter text-gray-500">${escapeHtml(skill)}</span>`).join('')}
           </div>
         </div>
       </div>
@@ -681,14 +722,14 @@ function renderRecommended(items) {
   container.innerHTML = items
     .map(
       (item) => `
-      <div class="group cursor-pointer" data-user-id="${item.id}">
+      <div class="group cursor-pointer" data-user-id="${escapeHtml(item.id)}">
         <div class="flex items-center gap-5 mb-3">
           <div class="w-14 h-14 bg-white border border-warm-gray p-0.5">
             <div class="w-full h-full bg-cover bg-center" style="background-image: url('${getAvatarUrl(item.id)}')"></div>
           </div>
           <div>
-            <p class="text-lg font-serif text-primary group-hover:underline">${item.name}</p>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">${item.skills[0] || 'Capstone'}</p>
+            <p class="text-lg font-serif text-primary group-hover:underline">${escapeHtml(item.name)}</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">${escapeHtml((item.skills || [])[0] || 'Capstone')}</p>
           </div>
         </div>
         <div class="flex justify-between items-center text-[11px] border-t border-warm-gray pt-2 mt-2">
@@ -840,14 +881,14 @@ async function initDashboardPage() {
         <div class="flex-1">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h4 class="text-3xl text-primary">${item.name}</h4>
-              <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mt-2">Looking for: ${item.looking_for}</p>
+              <h4 class="text-3xl text-primary">${escapeHtml(item.name)}</h4>
+              <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 mt-2">Looking for: ${escapeHtml(item.looking_for)}</p>
             </div>
             <span class="text-[10px] font-bold tracking-widest uppercase ${statusStyles} border px-2 py-1">${statusLabel}</span>
           </div>
           <p class="text-sm text-gray-500 mt-6">Skills</p>
           <div class="flex flex-wrap gap-2 mt-3">
-            ${(item.skills || []).map((skill) => `<span class="text-[10px] uppercase tracking-tighter text-gray-500">${skill}</span>`).join('')}
+            ${(item.skills || []).map((skill) => `<span class="text-[10px] uppercase tracking-tighter text-gray-500">${escapeHtml(skill)}</span>`).join('')}
           </div>
         </div>
       </div>
@@ -1058,22 +1099,22 @@ function renderPrefectList(mentors) {
   container.innerHTML = mentors
     .map(
       (mentor) => `
-      <div class="fellowship-row group flex flex-col md:flex-row md:items-center py-12 transition-all" data-mentor-id="${mentor.user_id}">
+      <div class="fellowship-row group flex flex-col md:flex-row md:items-center py-12 transition-all" data-mentor-id="${escapeHtml(mentor.user_id)}">
         <div class="flex-1">
           <div class="flex items-center gap-4 mb-2">
-            <span class="text-[10px] font-bold text-accent-gold uppercase tracking-[0.2em]">${mentor.domain}</span>
+            <span class="text-[10px] font-bold text-accent-gold uppercase tracking-[0.2em]">${escapeHtml(mentor.domain)}</span>
             <span class="h-px w-8 bg-accent-gold/30"></span>
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">${mentor.experience_years}+ Years Experience</span>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">${escapeHtml(mentor.experience_years)}+ Years Experience</span>
           </div>
-          <h3 class="mentor-name text-4xl font-serif text-primary dark:text-white mb-2 transition-colors">${mentor.name}</h3>
-          <p class="text-sm font-light text-gray-500">${mentor.bio || ''}</p>
+          <h3 class="mentor-name text-4xl font-serif text-primary dark:text-white mb-2 transition-colors">${escapeHtml(mentor.name)}</h3>
+          <p class="text-sm font-light text-gray-500">${escapeHtml(mentor.bio || '')}</p>
         </div>
         <div class="flex-1 mt-6 md:mt-0">
           <span class="text-[10px] font-bold text-primary/40 dark:text-white/40 uppercase tracking-widest block mb-2">Expertise</span>
-          <p class="text-lg font-serif text-primary/80 dark:text-gray-300 leading-relaxed">${(mentor.expertise || []).join(', ')}</p>
+          <p class="text-lg font-serif text-primary/80 dark:text-gray-300 leading-relaxed">${escapeHtml((mentor.expertise || []).join(', '))}</p>
         </div>
         <div class="flex items-center justify-end md:ml-12 mt-8 md:mt-0">
-          <a class="group relative inline-flex items-center justify-center px-10 py-3 overflow-hidden font-bold transition-all bg-primary dark:bg-white text-white dark:text-primary hover:bg-navy-deep dark:hover:bg-gray-200" href="/mentors/request?mentor_id=${mentor.id}">
+          <a class="group relative inline-flex items-center justify-center px-10 py-3 overflow-hidden font-bold transition-all bg-primary dark:bg-white text-white dark:text-primary hover:bg-navy-deep dark:hover:bg-gray-200" href="/mentors/request?mentor_id=${encodeURIComponent(mentor.id)}">
             <span class="text-[10px] uppercase tracking-[0.25em]">Request Prefect</span>
           </a>
         </div>
@@ -1198,16 +1239,20 @@ async function initPrefectsPage() {
 }
 
 function renderRequestRow(request, incoming) {
+  const counterpartName = escapeHtml(request.counterpart_name || '');
+  const requestType = escapeHtml(request.type || '');
+  const requestStatus = escapeHtml(request.status || '');
+  const counterpartEmail = request.counterpart_email ? escapeHtml(request.counterpart_email) : '';
   return `
-  <div class="flex items-center justify-between px-8 py-7 border-b border-border-sep/60 last:border-0 hover:bg-white/40 transition-colors" data-request-id="${request.id}">
+  <div class="flex items-center justify-between px-8 py-7 border-b border-border-sep/60 last:border-0 hover:bg-white/40 transition-colors" data-request-id="${escapeHtml(request.id)}">
     <div class="flex items-center gap-6">
       <div class="flex flex-col">
-        <p class="text-[16px] text-charcoal font-medium leading-snug">${incoming ? request.counterpart_name + ' sent a request' : 'Request to ' + request.counterpart_name}</p>
+        <p class="text-[16px] text-charcoal font-medium leading-snug">${incoming ? `${counterpartName} sent a request` : `Request to ${counterpartName}`}</p>
         <div class="flex items-center gap-2 mt-1">
-          <span class="text-xs uppercase tracking-wider text-charcoal/40 font-bold">${request.type}</span>
-          <span class="text-[13px] text-charcoal/60">${request.status}</span>
+          <span class="text-xs uppercase tracking-wider text-charcoal/40 font-bold">${requestType}</span>
+          <span class="text-[13px] text-charcoal/60">${requestStatus}</span>
         </div>
-        ${request.counterpart_email ? `<div class="text-[12px] text-charcoal/70 mt-2">Email: ${request.counterpart_email}</div>` : ''}
+        ${counterpartEmail ? `<div class="text-[12px] text-charcoal/70 mt-2">Email: ${counterpartEmail}</div>` : ''}
       </div>
     </div>
     ${incoming ? `
@@ -1225,16 +1270,19 @@ function renderRequestRow(request, incoming) {
 }
 
 function renderTeamRow(request) {
+  const counterpartName = escapeHtml(request.counterpart_name || '');
+  const requestType = escapeHtml(request.type || '');
+  const counterpartEmail = request.counterpart_email ? escapeHtml(request.counterpart_email) : '';
   return `
   <div class="flex items-center justify-between px-8 py-7 border-b border-border-sep/60 last:border-0 hover:bg-white/40 transition-colors">
     <div class="flex items-center gap-6">
       <div class="flex flex-col">
-        <p class="text-[16px] text-charcoal font-medium leading-snug">${request.counterpart_name}</p>
+        <p class="text-[16px] text-charcoal font-medium leading-snug">${counterpartName}</p>
         <div class="flex items-center gap-2 mt-1">
-          <span class="text-xs uppercase tracking-wider text-charcoal/40 font-bold">${request.type}</span>
+          <span class="text-xs uppercase tracking-wider text-charcoal/40 font-bold">${requestType}</span>
           <span class="text-[13px] text-charcoal/60">Accepted</span>
         </div>
-        ${request.counterpart_email ? `<div class="text-[12px] text-charcoal/70 mt-2">Email: ${request.counterpart_email}</div>` : ''}
+        ${counterpartEmail ? `<div class="text-[12px] text-charcoal/70 mt-2">Email: ${counterpartEmail}</div>` : ''}
       </div>
     </div>
   </div>
@@ -1652,16 +1700,16 @@ async function initAdminPrefectsPage() {
     container.innerHTML = data
       .map(
         (mentor) => `
-        <div class="border border-warm-gray bg-white p-6" data-mentor-id="${mentor.id}">
+        <div class="border border-warm-gray bg-white p-6" data-mentor-id="${escapeHtml(mentor.id)}">
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
-              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${mentor.domain}</p>
-              <h3 class="text-2xl text-primary mt-2">${mentor.name}</h3>
-              <p class="text-sm text-gray-500 mt-2">${mentor.bio || ''}</p>
-              <p class="text-xs text-gray-400 mt-2">Email: ${mentor.email}</p>
-              <p class="text-xs text-gray-400 mt-1">Experience: ${mentor.experience_years} yrs</p>
-              <p class="text-xs text-gray-400 mt-1">Expertise: ${(mentor.expertise || []).join(', ')}</p>
-              <p class="text-xs text-gray-400 mt-1">Links: ${(mentor.links || []).join(', ')}</p>
+              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${escapeHtml(mentor.domain)}</p>
+              <h3 class="text-2xl text-primary mt-2">${escapeHtml(mentor.name)}</h3>
+              <p class="text-sm text-gray-500 mt-2">${escapeHtml(mentor.bio || '')}</p>
+              <p class="text-xs text-gray-400 mt-2">Email: ${escapeHtml(mentor.email)}</p>
+              <p class="text-xs text-gray-400 mt-1">Experience: ${escapeHtml(mentor.experience_years)} yrs</p>
+              <p class="text-xs text-gray-400 mt-1">Expertise: ${escapeHtml((mentor.expertise || []).join(', '))}</p>
+              <p class="text-xs text-gray-400 mt-1">Links: ${escapeHtml((mentor.links || []).join(', '))}</p>
             </div>
             <div class="flex gap-3">
               <button class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="approve">Approve</button>
@@ -1734,21 +1782,21 @@ async function initAdminUsersPage() {
     container.innerHTML = data
       .map(
         (user) => `
-        <div class="border border-warm-gray bg-white p-6" data-user-id="${user.id}">
+        <div class="border border-warm-gray bg-white p-6" data-user-id="${escapeHtml(user.id)}">
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
-              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${user.role}</p>
+              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${escapeHtml(user.role)}</p>
               ${user.role !== 'ADMIN'
-                ? `<a class="text-2xl text-primary mt-2 inline-block hover:opacity-80 transition-opacity" href="/profile?user_id=${user.id}">${user.name}</a>`
-                : `<h3 class="text-2xl text-primary mt-2">${user.name}</h3>`}
-              <p class="text-sm text-gray-500 mt-2">${user.email}</p>
+                ? `<a class="text-2xl text-primary mt-2 inline-block hover:opacity-80 transition-opacity" href="/profile?user_id=${encodeURIComponent(user.id)}">${escapeHtml(user.name)}</a>`
+                : `<h3 class="text-2xl text-primary mt-2">${escapeHtml(user.name)}</h3>`}
+              <p class="text-sm text-gray-500 mt-2">${escapeHtml(user.email)}</p>
               <p class="text-xs text-gray-400 mt-1">Created: ${new Date(user.created_at).toLocaleDateString()}</p>
               <p class="text-xs text-gray-400 mt-1">Last login: ${new Date(user.last_login).toLocaleDateString()}</p>
               <p class="text-xs text-gray-400 mt-1">Blocked: ${user.blocked ? 'Yes' : 'No'}</p>
             </div>
             <div class="flex gap-3 flex-wrap">
               ${user.role !== 'ADMIN'
-                ? `<a class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" href="/profile?user_id=${user.id}">View Profile</a>`
+                ? `<a class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" href="/profile?user_id=${encodeURIComponent(user.id)}">View Profile</a>`
                 : ''}
               ${user.role === 'ADMIN'
                 ? '<button class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="remove-admin">Remove Admin</button>'
@@ -1917,7 +1965,7 @@ async function initAdminEmailTemplatesPage() {
   try {
     const templates = await apiFetch('/api/admin/email-templates');
     select.innerHTML = templates
-      .map((item) => `<option value="${item.id}">${item.name}</option>`)
+      .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`)
       .join('');
     if (templates.length) {
       await loadTemplate(templates[0].id);
@@ -1977,15 +2025,6 @@ async function initAdminStoriesPage() {
     window.location.href = '/authentication';
     return;
   }
-
-  const escapeHtml = (value) => {
-    return String(value || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  };
 
   const normalize = (items) => {
     const base = items && items.length ? items.slice(0, 4) : [];
@@ -2131,7 +2170,7 @@ async function initPrefectEmailTemplatesPage() {
   try {
     const templates = await apiFetch('/api/mentors/email-templates');
     select.innerHTML = templates
-      .map((item) => `<option value="${item.id}">${item.name}</option>`)
+      .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`)
       .join('');
     if (templates.length) {
       await loadTemplate(templates[0].id);
@@ -2208,13 +2247,13 @@ async function initPrefectDashboardPage() {
       `;
     } else {
       container.innerHTML = pendingRequests.map((req) => `
-        <div class="border border-warm-gray bg-white p-6" data-request-id="${req.id}">
+        <div class="border border-warm-gray bg-white p-6" data-request-id="${escapeHtml(req.id)}">
           <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
-              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${req.status}</p>
-              <h3 class="text-2xl text-primary mt-2">${req.counterpart_name}</h3>
-              <p class="text-sm text-gray-500 mt-2">${req.message}</p>
-              ${req.counterpart_email ? `<p class="text-xs text-gray-400 mt-2">Email: ${req.counterpart_email}</p>` : ''}
+              <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">${escapeHtml(req.status)}</p>
+              <h3 class="text-2xl text-primary mt-2">${escapeHtml(req.counterpart_name)}</h3>
+              <p class="text-sm text-gray-500 mt-2">${escapeHtml(req.message)}</p>
+              ${req.counterpart_email ? `<p class="text-xs text-gray-400 mt-2">Email: ${escapeHtml(req.counterpart_email)}</p>` : ''}
             </div>
             <div class="flex gap-3">
               <button class="border border-primary text-[10px] font-semibold uppercase tracking-[0.3em] px-4 py-2" data-action="accept">Accept</button>
@@ -2253,9 +2292,9 @@ async function initPrefectDashboardPage() {
         ? accepted.map((req) => `
           <div class="border border-warm-gray bg-white p-6">
             <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">Accepted</p>
-            <h3 class="text-2xl text-primary mt-2">${req.counterpart_name}</h3>
-            <p class="text-sm text-gray-500 mt-2">${req.message || ''}</p>
-            ${req.counterpart_email ? `<p class="text-xs text-gray-400 mt-2">Email: ${req.counterpart_email}</p>` : ''}
+            <h3 class="text-2xl text-primary mt-2">${escapeHtml(req.counterpart_name)}</h3>
+            <p class="text-sm text-gray-500 mt-2">${escapeHtml(req.message || '')}</p>
+            ${req.counterpart_email ? `<p class="text-xs text-gray-400 mt-2">Email: ${escapeHtml(req.counterpart_email)}</p>` : ''}
           </div>
         `).join('')
         : `

@@ -6,10 +6,11 @@ import time
 
 import anyio
 import requests
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
+from app.core.dependencies import require_onboarding_complete
 
 
 router = APIRouter(prefix="/groq", tags=["groq"])
@@ -256,7 +257,9 @@ def _format_from_json(payload: dict[str, Any]) -> str:
 
 @router.post("/capstone", response_model=CapstoneIdeaResponse)
 async def generate_capstone_idea(
-    payload: CapstoneIdeaRequest, request: Request
+    payload: CapstoneIdeaRequest,
+    request: Request,
+    _current_user=Depends(require_onboarding_complete),
 ) -> CapstoneIdeaResponse:
     client_ip = request.client.host if request.client else "unknown"
     now = time.time()

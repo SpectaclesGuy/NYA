@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import AliasChoices, Field
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -123,6 +123,14 @@ class Settings(BaseSettings):
         default="llama-3.3-70b-versatile",
         validation_alias=AliasChoices("NYA_GROQ_MODEL", "GROQ_MODEL"),
     )
+
+    @model_validator(mode="after")
+    def validate_security_settings(self) -> "Settings":
+        if self.jwt_secret == "change-me":
+            raise ValueError("NYA_JWT_SECRET must not use the default value.")
+        if len(self.jwt_secret) < 32:
+            raise ValueError("NYA_JWT_SECRET must be at least 32 characters long.")
+        return self
 
     @property
     def admin_email_list(self) -> list[str]:
