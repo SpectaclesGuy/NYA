@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import html
 import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -16,6 +18,9 @@ class EmailService:
 
     def _enabled(self) -> bool:
         return bool(settings.smtp_enabled and settings.smtp_user and settings.smtp_password)
+
+    def is_enabled(self) -> bool:
+        return self._enabled()
 
     def _from_address(self) -> str:
         return settings.smtp_from or settings.smtp_user
@@ -124,6 +129,27 @@ class EmailService:
             return
         await self._send_email(recipient_email, subject, html_body)
 
+    async def send_custom_html_with_attachment(
+        self,
+        recipient_email: str,
+        subject: str,
+        html_body: str,
+        attachment_name: str,
+        attachment_content: bytes,
+        mime_type: str = "text/plain",
+    ) -> None:
+        if not self._enabled():
+            return
+        await asyncio.to_thread(
+            self._send_email_with_attachment_sync,
+            recipient_email,
+            subject,
+            html_body,
+            attachment_name,
+            attachment_content,
+            mime_type,
+        )
+
     async def send_mentor_application_created(
         self,
         *,
@@ -187,6 +213,42 @@ class EmailService:
         msg["From"] = self._from_address()
         msg["To"] = to_email
         msg.attach(MIMEText(html_body, "html", "utf-8"))
+
+        if settings.smtp_use_starttls:
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as server:
+                server.ehlo()
+                server.starttls()
+                server.login(settings.smtp_user, settings.smtp_password)
+                server.sendmail(msg["From"], [to_email], msg.as_string())
+        else:
+            with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=10) as server:
+                server.login(settings.smtp_user, settings.smtp_password)
+                server.sendmail(msg["From"], [to_email], msg.as_string())
+
+    def _send_email_with_attachment_sync(
+        self,
+        to_email: str,
+        subject: str,
+        html_body: str,
+        attachment_name: str,
+        attachment_content: bytes,
+        mime_type: str = "text/plain",
+    ) -> None:
+        msg = MIMEMultipart("mixed")
+        msg["Subject"] = subject
+        msg["From"] = self._from_address()
+        msg["To"] = to_email
+
+        alt = MIMEMultipart("alternative")
+        alt.attach(MIMEText(html_body, "html", "utf-8"))
+        msg.attach(alt)
+
+        major, _, minor = mime_type.partition("/")
+        attachment = MIMEBase(major or "application", minor or "octet-stream")
+        attachment.set_payload(attachment_content)
+        encoders.encode_base64(attachment)
+        attachment.add_header("Content-Disposition", f'attachment; filename="{attachment_name}"')
+        msg.attach(attachment)
 
         if settings.smtp_use_starttls:
             with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as server:

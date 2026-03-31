@@ -10,3 +10,5 @@ anyio==4.4.0
 pymongo==4.8.0
 email-validator
 requests
+instaloader
+openai-whisper

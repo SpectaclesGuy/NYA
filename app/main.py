@@ -24,6 +24,7 @@ from app.routes.profiles import router as profiles_router
 from app.routes.requests import router as requests_router
 from app.routes.stories import router as stories_router
 from app.routes.users import router as users_router
+from app.routes.scrape import router as scrape_router
 from app.utils.errors import AppError, error_response
 from app.utils.profile import is_capstone_profile_complete
 
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
     app.include_router(mentors_router, prefix="/api")
     app.include_router(requests_router, prefix="/api")
     app.include_router(stories_router, prefix="/api")
+    app.include_router(scrape_router, prefix="/api")
 
     root_dir = Path(__file__).resolve().parents[1]
     pages_dir = root_dir / "Pages"
@@ -261,6 +263,17 @@ def create_app() -> FastAPI:
             if redirect:
                 return redirect
             return page("hackathons.html")
+
+        @app.get("/scrape")
+        async def scrape_page(request: Request, db=Depends(get_db)):
+            try:
+                user = await get_current_user(request.cookies.get(ACCESS_COOKIE), db)
+            except AppError:
+                return RedirectResponse(url="/authentication")
+            redirect = await redirect_if_incomplete(user, db)
+            if redirect:
+                return redirect
+            return page("scrape.html")
 
         @app.get("/mentor_request")
         async def mentors_request_alias():

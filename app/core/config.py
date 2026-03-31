@@ -123,6 +123,14 @@ class Settings(BaseSettings):
         default="llama-3.3-70b-versatile",
         validation_alias=AliasChoices("NYA_GROQ_MODEL", "GROQ_MODEL"),
     )
+    instagram_username: str = Field(
+        default="",
+        validation_alias=AliasChoices("NYA_INSTAGRAM_USERNAME", "INSTAGRAM_USERNAME"),
+    )
+    instagram_password: str = Field(
+        default="",
+        validation_alias=AliasChoices("NYA_INSTAGRAM_PASSWORD", "INSTAGRAM_PASSWORD"),
+    )
 
     @model_validator(mode="after")
     def validate_security_settings(self) -> "Settings":
